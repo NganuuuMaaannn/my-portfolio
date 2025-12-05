@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sean Michael Doinog - Portfolio",
-  description: "Sean's Description",
+  title: "Sean's - Portfolio",
+  description: "Sean Michael Doinog - Portfolio",
 };
 
 export default function RootLayout({
