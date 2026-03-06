@@ -1,0 +1,19 @@
+<svg width="640" height="420" viewBox="0 0 640 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="640" height="420" rx="28" fill="#EFF6FF"/>
+  <rect x="28" y="28" width="584" height="364" rx="22" fill="white" stroke="#BFDBFE" stroke-width="2"/>
+  <rect x="56" y="56" width="198" height="36" rx="18" fill="#DBEAFE"/>
+  <text x="87" y="80" fill="#1D4ED8" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700">DEVSPRINT INSTITUTE</text>
+  <text x="56" y="150" fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700">Frontend Performance</text>
+  <text x="56" y="192" fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700">Specialist</text>
+  <text x="56" y="246" fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="18">Recognizes strong optimization work for loading,</text>
+  <text x="56" y="274" fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="18">image handling, responsiveness, and accessibility.</text>
+  <rect x="56" y="316" width="174" height="44" rx="18" fill="#0F172A"/>
+  <text x="92" y="344" fill="#F8FAFC" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700">View Certificate</text>
+  <rect x="430" y="98" width="118" height="146" rx="20" fill="#1D4ED8"/>
+  <rect x="455" y="124" width="68" height="12" rx="6" fill="#DBEAFE"/>
+  <rect x="455" y="150" width="52" height="12" rx="6" fill="#93C5FD"/>
+  <rect x="455" y="176" width="74" height="12" rx="6" fill="#60A5FA"/>
+  <rect x="455" y="202" width="44" height="12" rx="6" fill="#BFDBFE"/>
+  <path d="M398 298H560" stroke="#93C5FD" stroke-width="10" stroke-linecap="round"/>
+  <path d="M430 334H526" stroke="#DBEAFE" stroke-width="10" stroke-linecap="round"/>
+</svg>

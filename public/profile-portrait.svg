@@ -1,0 +1,21 @@
+<svg width="720" height="840" viewBox="0 0 720 840" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="720" height="840" rx="44" fill="#FFF8EC"/>
+  <circle cx="600" cy="112" r="124" fill="#14B8A6" fill-opacity="0.14"/>
+  <circle cx="144" cy="700" r="148" fill="#F97316" fill-opacity="0.16"/>
+  <rect x="88" y="70" width="544" height="700" rx="38" fill="white" stroke="#E5DCCB" stroke-width="2"/>
+  <rect x="120" y="108" width="480" height="150" rx="26" fill="#0F172A"/>
+  <text x="156" y="160" fill="#F8FAFC" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">SEAN MICHAEL</text>
+  <text x="156" y="196" fill="#94A3B8" font-family="Arial, Helvetica, sans-serif" font-size="16">UI Designer and Frontend Developer</text>
+  <text x="156" y="226" fill="#CBD5E1" font-family="Arial, Helvetica, sans-serif" font-size="14">Dummy profile picture for the portfolio template</text>
+  <circle cx="360" cy="342" r="108" fill="#F3C18A"/>
+  <path d="M250 321C258 248 317 222 360 222C406 222 466 249 470 330C445 297 395 275 336 282C301 286 272 300 250 321Z" fill="#153B35"/>
+  <path d="M324 350C333 346 342 351 347 359C353 367 354 379 349 389C342 402 325 408 311 401C297 394 291 376 298 363C304 354 313 350 324 350Z" fill="#E9B37B"/>
+  <path d="M398 350C407 346 416 351 422 359C428 367 429 379 424 389C417 402 400 408 386 401C372 394 366 376 373 363C379 354 388 350 398 350Z" fill="#E9B37B"/>
+  <path d="M336 430C352 438 370 438 386 430" stroke="#8C4A2F" stroke-width="8" stroke-linecap="round"/>
+  <path d="M238 622C245 528 305 474 360 474C416 474 475 527 482 622V666H238V622Z" fill="#0F766E"/>
+  <path d="M214 676H506C529 676 548 695 548 718V770H172V718C172 695 191 676 214 676Z" fill="#0F172A"/>
+  <rect x="148" y="684" width="180" height="54" rx="18" fill="#ECFEFF"/>
+  <text x="174" y="718" fill="#0F766E" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700">Responsive UI</text>
+  <rect x="390" y="684" width="182" height="54" rx="18" fill="#FFF7ED"/>
+  <text x="420" y="718" fill="#C2410C" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700">Case Studies</text>
+</svg>

@@ -1,0 +1,19 @@
+<svg width="640" height="420" viewBox="0 0 640 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="640" height="420" rx="28" fill="#F0FDF4"/>
+  <rect x="28" y="28" width="584" height="364" rx="22" fill="white" stroke="#BBF7D0" stroke-width="2"/>
+  <rect x="56" y="56" width="164" height="36" rx="18" fill="#DCFCE7"/>
+  <text x="91" y="80" fill="#15803D" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700">SPRINTWORKS</text>
+  <text x="56" y="150" fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700">Agile Team</text>
+  <text x="56" y="192" fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700">Facilitation</text>
+  <text x="56" y="246" fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="18">Recognizes planning, sprint rituals, retrospectives,</text>
+  <text x="56" y="274" fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="18">and strong communication across product teams.</text>
+  <rect x="56" y="316" width="164" height="44" rx="18" fill="#0F172A"/>
+  <text x="92" y="344" fill="#F8FAFC" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700">Open Credential</text>
+  <circle cx="488" cy="166" r="82" fill="#86EFAC"/>
+  <circle cx="452" cy="164" r="28" fill="#166534"/>
+  <circle cx="526" cy="164" r="28" fill="#15803D"/>
+  <circle cx="488" cy="224" r="28" fill="#22C55E"/>
+  <path d="M452 164H526" stroke="#DCFCE7" stroke-width="10" stroke-linecap="round"/>
+  <path d="M452 164L488 224" stroke="#DCFCE7" stroke-width="10" stroke-linecap="round"/>
+  <path d="M526 164L488 224" stroke="#DCFCE7" stroke-width="10" stroke-linecap="round"/>
+</svg>
