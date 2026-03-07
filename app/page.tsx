@@ -98,7 +98,7 @@ export default function Home() {
     isProgrammaticScrollRef.current = true;
     setShowBackToTop(false);
 
-    animateScrollTo(targetY, 2100, () => {
+    animateScrollTo(targetY, 1100, () => {
       isProgrammaticScrollRef.current = false;
     });
   };
