@@ -91,7 +91,7 @@ export default function Home() {
       return;
     }
 
-    const headerOffset = 56;
+    const headerOffset = 96;
     const sectionTop = section.getBoundingClientRect().top + window.scrollY;
     const targetY = Math.max(sectionTop - headerOffset, 0);
 
