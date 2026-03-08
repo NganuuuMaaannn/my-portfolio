@@ -1,5 +1,6 @@
 import Image from "next/image";
 
+import { SectionReveal, TileReveal } from "./PortfolioMotion";
 import type { Capability } from "./types";
 
 type AboutSectionProps = {
@@ -8,9 +9,10 @@ type AboutSectionProps = {
 
 export function AboutSection({ capabilities }: AboutSectionProps) {
   return (
-    <section
+    <SectionReveal
       id="about"
       className="mx-auto max-w-6xl scroll-mt-28 px-6 py-16 lg:px-8 lg:py-20"
+      delay={0.04}
     >
       <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
         <div className="rounded-[36px] border border-white/10 bg-slate-900/68 p-8 shadow-[0_24px_70px_rgba(2,6,23,0.32)] backdrop-blur sm:p-10">
@@ -33,14 +35,13 @@ export function AboutSection({ capabilities }: AboutSectionProps) {
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            {capabilities.map((item) => (
-              <div
-                key={item.title}
-                className="rounded-[28px] border border-white/10 bg-white/5 p-5"
-              >
-                <h3 className="text-lg font-semibold text-slate-50">{item.title}</h3>
-                <p className="mt-3 text-sm leading-7 text-slate-300">{item.description}</p>
-              </div>
+            {capabilities.map((item, index) => (
+              <TileReveal key={item.title} delay={0.08 + index * 0.06}>
+                <div className="rounded-[28px] border border-white/10 bg-white/5 p-5">
+                  <h3 className="text-lg font-semibold text-slate-50">{item.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-slate-300">{item.description}</p>
+                </div>
+              </TileReveal>
             ))}
           </div>
         </div>
@@ -58,26 +59,30 @@ export function AboutSection({ capabilities }: AboutSectionProps) {
             />
 
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-3xl border border-white/10 bg-white/6 px-5 py-4 shadow-sm">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
-                  Role
-                </p>
-                <p className="mt-2 text-lg font-semibold text-slate-50">
-                  UI Designer and Frontend Developer
-                </p>
-              </div>
-              <div className="rounded-3xl bg-slate-950 px-5 py-4 text-white shadow-sm">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/60">
-                  Specialty
-                </p>
-                <p className="mt-2 text-lg font-semibold">
-                  Portfolio sites, admin tools, and modern landing pages
-                </p>
-              </div>
+              <TileReveal delay={0.16}>
+                <div className="rounded-3xl border border-white/10 bg-white/6 px-5 py-4 shadow-sm">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
+                    Role
+                  </p>
+                  <p className="mt-2 text-lg font-semibold text-slate-50">
+                    UI Designer and Frontend Developer
+                  </p>
+                </div>
+              </TileReveal>
+              <TileReveal delay={0.22}>
+                <div className="rounded-3xl bg-slate-950 px-5 py-4 text-white shadow-sm">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/60">
+                    Specialty
+                  </p>
+                  <p className="mt-2 text-lg font-semibold">
+                    Portfolio sites, admin tools, and modern landing pages
+                  </p>
+                </div>
+              </TileReveal>
             </div>
           </div>
         </div>
       </div>
-    </section>
+    </SectionReveal>
   );
 }

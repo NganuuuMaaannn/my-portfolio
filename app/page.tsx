@@ -17,6 +17,7 @@ import {
 import { HeroSection } from "@/app/components/portfolio/HeroSection";
 import { PortfolioFooter } from "@/app/components/portfolio/PortfolioFooter";
 import { PortfolioHeader } from "@/app/components/portfolio/PortfolioHeader";
+import { PageIntroOverlay } from "@/app/components/portfolio/PortfolioMotion";
 import { ProjectsSection } from "@/app/components/portfolio/ProjectsSection";
 
 export default function Home() {
@@ -114,6 +115,7 @@ export default function Home() {
 
   return (
     <main className="relative overflow-hidden pb-16 text-slate-100">
+      <PageIntroOverlay />
       <div className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(circle_at_top_left,rgba(20,184,166,0.18),transparent_26%),radial-gradient(circle_at_top_right,rgba(249,115,22,0.12),transparent_24%),linear-gradient(180deg,#050816_0%,#0b1120_46%,#111827_100%)]" />
       <div className="pointer-events-none absolute inset-0 -z-10 opacity-40 [bg-[linear-gradient(rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.08)_1px,transparent_1px)]] [bg-size-[72px_72px]]" />
 
