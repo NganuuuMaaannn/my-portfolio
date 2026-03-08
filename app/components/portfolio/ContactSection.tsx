@@ -50,7 +50,7 @@ export function ContactSection({
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 auto-cols-fr">
           {contactMethods.map((item, index) => {
             const Icon = item.icon;
 
@@ -60,7 +60,7 @@ export function ContactSection({
                   href={item.href}
                   target={item.href.startsWith("http") ? "_blank" : undefined}
                   rel={item.href.startsWith("http") ? "noreferrer" : undefined}
-                  className="block rounded-[30px] border border-white/10 bg-slate-900/66 p-6 shadow-[0_18px_60px_rgba(2,6,23,0.36)] transition hover:-translate-y-1 hover:border-teal-300/30"
+                  className="flex flex-col h-full rounded-[30px] border border-white/10 bg-slate-900/66 p-6 shadow-[0_18px_60px_rgba(2,6,23,0.36)] transition hover:-translate-y-1 hover:border-teal-300/30"
                 >
                   <div className="flex h-11 w-11 items-center justify-center rounded-full bg-teal-300/12 text-teal-200">
                     <Icon />

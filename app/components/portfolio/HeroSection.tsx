@@ -18,7 +18,7 @@ export function HeroSection({ heroStats, onNavigate }: HeroSectionProps) {
   return (
     <motion.section
       id="home"
-      className="mx-auto grid max-w-6xl scroll-mt-28 gap-12 px-6 pb-20 pt-20 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:pb-24 lg:pt-24"
+      className="mt-10 mx-auto grid max-w-6xl scroll-mt-28 gap-12 px-6 pb-20 pt-20 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:pb-24 lg:pt-24"
     >
       <div className="flex flex-col justify-center">
         <motion.span
@@ -75,10 +75,10 @@ export function HeroSection({ heroStats, onNavigate }: HeroSectionProps) {
             Explore certificates
           </a>
         </motion.div>
-        <div className="mt-12 grid gap-4 sm:grid-cols-3">
+        <div className="mt-12 grid gap-4 sm:grid-cols-3 auto-cols-fr">
           {heroStats.map((stat, index) => (
             <TileReveal key={stat.label} delay={0.78 + index * 0.1}>
-              <div className="rounded-[28px] border border-white/10 bg-white/6 px-5 py-6 shadow-[0_18px_50px_rgba(2,6,23,0.28)] backdrop-blur">
+              <div className="flex flex-col h-full rounded-[28px] border border-white/10 bg-white/6 px-5 py-6 shadow-[0_18px_50px_rgba(2,6,23,0.28)] backdrop-blur">
                 <p className="text-3xl font-semibold text-slate-50">{stat.value}</p>
                 <p className="mt-2 text-sm leading-6 text-slate-400">{stat.label}</p>
               </div>
@@ -93,7 +93,7 @@ export function HeroSection({ heroStats, onNavigate }: HeroSectionProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.1, delay: 0.46, ease: revealEase }}
       >
-        <div className="absolute -inset-6 rounded-[42px] bg-teal-500/15 blur-3xl" />
+        <div className="absolute -inset-6 rounded-[42px] bg-teal-500/5 blur-3xl" />
         <div className="relative overflow-hidden rounded-[36px] border border-white/10 bg-slate-900/70 p-7 shadow-[0_24px_80px_rgba(2,6,23,0.4)] backdrop-blur">
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -147,16 +147,17 @@ export function HeroSection({ heroStats, onNavigate }: HeroSectionProps) {
               </div>
             </TileReveal>
           </div>
-
-          <div className="mt-7 rounded-[30px] border border-dashed border-white/14 bg-slate-950/45 px-5 py-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
-              Dummy content note
-            </p>
-            <p className="mt-3 text-sm leading-7 text-slate-300">
-              Swap the copy, links, and images here with your own profile details once
-              you are ready to turn this into a real portfolio.
-            </p>
-          </div>
+          <TileReveal delay={1.20}>
+            <div className="mt-7 rounded-[30px] border border-dashed border-white/14 bg-slate-950/45 px-5 py-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+                Dummy content note
+              </p>
+              <p className="mt-3 text-sm leading-7 text-slate-300">
+                Swap the copy, links, and images here with your own profile details once
+                you are ready to turn this into a real portfolio.
+              </p>
+            </div>
+          </TileReveal>
         </div>
       </motion.div>
     </motion.section>

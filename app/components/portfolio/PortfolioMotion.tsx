@@ -12,14 +12,18 @@ type TileRevealProps = HTMLMotionProps<"div"> & {
   delay?: number;
 };
 
+type HeaderProps = HTMLMotionProps<"div"> & {
+  delay?: number;
+};
+
 export function PageIntroOverlay() {
   return (
     <motion.div
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-60 bg-[linear-gradient(180deg,rgba(8,15,35,0.98)_0%,rgba(6,10,26,0.94)_58%,rgba(6,10,26,0.72)_100%)]"
-      initial={{ clipPath: "inset(0 0 0 0 round 0px)", opacity: 1 }}
-      animate={{ clipPath: "inset(0 0 100% 0 round 28px)", opacity: 0.12 }}
-      transition={{ duration: 1.45, ease: revealEase }}
+      className="pointer-events-none fixed inset-0 z-60 bg-[linear-gradient(80deg,rgba(8,15,35,0.98)_0%,rgba(6,10,26,0.94)_58%,rgba(6,10,26,0.72)_100%)]"
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 0.12 }}
+      transition={{ duration: 3.45, ease: revealEase }}
     >
       <motion.div
         className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-teal-300/80 to-transparent"
@@ -62,6 +66,26 @@ export function TileReveal({
       {...props}
       className={["will-change-transform", className].filter(Boolean).join(" ")}
       initial={{ opacity: 0, y: 30, scale: 0.985 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, amount: 0.28 }}
+      transition={{ duration: 0.92, delay, ease: revealEase }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function HeaderReveal({
+  children,
+  className,
+  delay = 0,
+  ...props
+}: HeaderProps) {
+  return (
+    <motion.div
+      {...props}
+      className={["will-change-transform", className].filter(Boolean).join(" ")}
+      initial={{ opacity: 0, y: -30 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, amount: 0.28 }}
       transition={{ duration: 0.92, delay, ease: revealEase }}

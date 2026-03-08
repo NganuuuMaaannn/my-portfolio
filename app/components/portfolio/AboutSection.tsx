@@ -28,16 +28,10 @@ export function AboutSection({ capabilities }: AboutSectionProps) {
             starts with understanding the audience, organizing the content, and then
             building a visual system that feels calm and memorable.
           </p>
-          <p className="mt-4 text-base leading-8 text-slate-300">
-            This section uses dummy biography content, but the structure is ready for
-            your real story, skills, and experience. The text sits on the left, while
-            the portrait card stays on the right as requested.
-          </p>
-
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 auto-rows-fr">
             {capabilities.map((item, index) => (
               <TileReveal key={item.title} delay={0.08 + index * 0.06}>
-                <div className="rounded-[28px] border border-white/10 bg-white/5 p-5">
+                <div className="flex h-full flex-col rounded-[28px] border border-white/10 bg-white/5 p-5">
                   <h3 className="text-lg font-semibold text-slate-50">{item.title}</h3>
                   <p className="mt-3 text-sm leading-7 text-slate-300">{item.description}</p>
                 </div>
@@ -58,27 +52,32 @@ export function AboutSection({ capabilities }: AboutSectionProps) {
               priority
             />
 
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <div className="mt-5 grid gap-4 sm:grid-cols-2 auto-rows-fr">
+
               <TileReveal delay={0.16}>
-                <div className="rounded-3xl border border-white/10 bg-white/6 px-5 py-4 shadow-sm">
+                <div className="flex h-full flex-col rounded-3xl border border-white/10 bg-white/6 px-5 py-4 shadow-sm">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
                     Role
                   </p>
+
                   <p className="mt-2 text-lg font-semibold text-slate-50">
                     UI Designer and Frontend Developer
                   </p>
                 </div>
               </TileReveal>
+
               <TileReveal delay={0.22}>
-                <div className="rounded-3xl bg-slate-950 px-5 py-4 text-white shadow-sm">
+                <div className="flex h-full flex-col rounded-3xl bg-slate-950 px-5 py-4 text-white shadow-sm">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/60">
                     Specialty
                   </p>
+
                   <p className="mt-2 text-lg font-semibold">
-                    Portfolio sites, admin tools, and modern landing pages
+                    Portfolio sites, admin tools, and modern landing pages.
                   </p>
                 </div>
               </TileReveal>
+
             </div>
           </div>
         </div>
