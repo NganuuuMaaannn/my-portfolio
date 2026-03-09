@@ -26,7 +26,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
         {projects.map((project, index) => (
           <TileReveal key={project.title} delay={0.06 + index * 0.06} className="h-full">
             <article className="flex h-full flex-col mt-auto rounded-4xl border border-white/10 bg-slate-900/66 p-5 shadow-[0_18px_60px_rgba(2,6,23,0.36)] backdrop-blur transition hover:-translate-y-1 hover:border-teal-300/30">
-              <div className={`rounded-[28px] bg-linear-to-br ${project.accent} p-6 text-white`}>
+              <div className={`rounded-[28px] bg-linear-to-br ${project.accent} p-6 text-white auto flex h-full flex-col`}>
                 <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.2em] text-white/85">
                   <span>{project.category}</span>
                   <span>{project.year}</span>

@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sean's - Portfolio",
+  title: "Allena Hub",
   description: "Sean Michael Doinog - Portfolio",
 };
 

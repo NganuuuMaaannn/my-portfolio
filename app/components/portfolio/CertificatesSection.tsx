@@ -30,13 +30,13 @@ export function CertificatesSection({
           {certificates.map((certificate, index) => (
             <TileReveal key={certificate.title} delay={0.06 + index * 0.07} className="h-full">
               <article className="flex h-full flex-col rounded-[30px] border border-white/10 bg-white/5 p-5 transition hover:-translate-y-1 hover:border-teal-300/30">
-                <div className="overflow-hidden rounded-3xl border border-white/10 bg-slate-950/70">
+                <div className="overflow-hidden rounded-3xl border border-white/10 bg-slate-950/70 h-full">
                   <Image
                     src={certificate.image}
                     alt={certificate.title}
                     width={640}
                     height={420}
-                    className="h-56 w-full object-cover"
+                    className="w-full h-full object-cover"
                   />
                 </div>
 
