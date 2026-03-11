@@ -1,21 +1,36 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase";
 
-type RegisterStep = "form" | "otp";
+const EyeIcon = ({ isVisible }: { isVisible: boolean }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={1.5}
+    stroke="currentColor"
+    className="w-5 h-5"
+  >
+    {isVisible ? (
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+    ) : (
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+    )}
+  </svg>
+);
 
 export default function RegisterPage() {
-  const [step, setStep] = useState<RegisterStep>("form");
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
 
   // Show/hide password states
   const [showPassword, setShowPassword] = useState(false);
@@ -81,9 +96,51 @@ export default function RegisterPage() {
     return Object.keys(errors).length === 0;
   };
 
-  const handleSendOtp = async (e: React.FormEvent) => {
+  const formatAuthError = (message: string) => {
+    const normalized = message.toLowerCase();
+    if (normalized.includes("rate limit")) {
+      return "Email rate limit exceeded. Please wait a bit and try again.";
+    }
+    return message;
+  };
+
+  useEffect(() => {
+    if (!awaitingConfirmation) return;
+
+    const supabase = createClient();
+    let isMounted = true;
+
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!isMounted) return;
+      if (data.session) {
+        window.location.href = "/admin";
+      }
+    };
+
+    checkSession();
+    const interval = setInterval(checkSession, 4000);
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        window.location.href = "/admin";
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+      subscription.unsubscribe();
+    };
+  }, [awaitingConfirmation]);
+
+  const handleSendMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
+    setAwaitingConfirmation(false);
 
     // Validate all fields
     const errors: typeof fieldErrors = {};
@@ -106,7 +163,7 @@ export default function RegisterPage() {
     const supabase = createClient();
 
     try {
-      // First, create the user account with password
+      // Create the user and send a confirmation link
       const { error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -120,23 +177,10 @@ export default function RegisterPage() {
       });
 
       if (signUpError) {
-        setError(signUpError.message);
-        setLoading(false);
-        return;
-      }
-
-      // Now send OTP for verification
-      const { error: otpError } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          shouldCreateUser: false,
-        },
-      });
-
-      if (otpError) {
-        setError(otpError.message);
+        setError(formatAuthError(signUpError.message));
       } else {
-        setStep("otp");
+        setSuccess("We sent a confirmation link to your email. Click it to finish registration and continue to the admin page.");
+        setAwaitingConfirmation(true);
       }
     } catch (err) {
       setError("An unexpected error occurred");
@@ -144,46 +188,24 @@ export default function RegisterPage() {
     setLoading(false);
   };
 
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleResendLink = async () => {
     setError("");
-    setLoading(true);
-
-    const supabase = createClient();
-
-    try {
-      // Verify the OTP (supports both 6 and 8 digits)
-      const { error: verifyError, data } = await supabase.auth.verifyOtp({
-        email,
-        token: otp,
-        type: "email",
-      });
-
-      if (verifyError) {
-        setError(verifyError.message);
-      } else {
-        // Success! Redirect to admin
-        window.location.href = "/admin";
-      }
-    } catch (err) {
-      setError("An unexpected error occurred");
-    }
-    setLoading(false);
-  };
-
-  const handleResendOtp = async () => {
-    setError("");
+    setSuccess("");
     setLoading(true);
     const supabase = createClient();
 
-    const { error } = await supabase.auth.signInWithOtp({
+    const { error: resendError } = await supabase.auth.resend({
+      type: "signup",
       email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/admin/auth/callback`,
+      },
     });
 
-    if (error) {
-      setError(error.message);
+    if (resendError) {
+      setError(formatAuthError(resendError.message));
     } else {
-      setError("OTP resent! Enter the new code.");
+      setSuccess("Confirmation link resent. Please check your inbox.");
     }
     setLoading(false);
   };
@@ -194,23 +216,70 @@ export default function RegisterPage() {
     return fieldErrors[fieldName] ? "border-red-500" : "border-teal-500";
   };
 
-  // Eye icon component
-  const EyeIcon = ({ isVisible }: { isVisible: boolean }) => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      className="w-5 h-5"
-    >
-      {isVisible ? (
-        <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-      ) : (
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
-      )}
-    </svg>
-  );
+  if (awaitingConfirmation) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center px-4 py-8">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-teal-400">Allena Hub</h1>
+            <p className="text-slate-400 mt-2">Confirm Your Email</p>
+          </div>
+
+          <div className="bg-slate-800 rounded-lg p-8 border border-slate-700">
+            <div className="flex items-center justify-center mb-6">
+              <div className="h-12 w-12 rounded-full border-2 border-teal-400 border-t-transparent animate-spin" />
+            </div>
+
+            <div className="text-center mb-6">
+              <h2 className="text-xl font-semibold text-slate-100">Waiting for confirmation</h2>
+              <p className="text-slate-400 mt-2">
+                We sent a confirmation link to <span className="text-teal-300">{email}</span>.
+                Click the link to finish registration.
+              </p>
+            </div>
+
+            {error && (
+              <div className="bg-red-500/-500 text-red10 border border-red-400 px-4 py-2 rounded-lg text-sm mb-4">
+                {error}
+              </div>
+            )}
+            {success && (
+              <div className="bg-teal-500/10 border border-teal-400 text-teal-200 px-4 py-2 rounded-lg text-sm mb-4">
+                {success}
+              </div>
+            )}
+
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={handleResendLink}
+                disabled={loading}
+                className="w-full text-teal-300 hover:text-teal-200 border border-teal-500/50 py-3 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {loading ? "Resending..." : "Resend confirmation link"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setAwaitingConfirmation(false);
+                  setError("");
+                  setSuccess("");
+                }}
+                className="w-full text-slate-400 hover:text-teal-400 text-sm py-2 transition-colors"
+              >
+                Use a different email
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-500 text-center mt-6">
+              This page will refresh automatically and redirect once your email is confirmed.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center px-4 py-8">
@@ -228,9 +297,13 @@ export default function RegisterPage() {
               {error}
             </div>
           )}
+          {success && (
+            <div className="bg-teal-500/10 border border-teal-400 text-teal-200 px-4 py-2 rounded-lg text-sm mb-4">
+              {success}
+            </div>
+          )}
 
-          {step === "form" ? (
-            <form onSubmit={handleSendOtp} className="space-y-4">
+          <form onSubmit={handleSendMagicLink} className="space-y-4">
               {/* Name */}
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-slate-300 mb-2">
@@ -390,62 +463,9 @@ export default function RegisterPage() {
                 disabled={loading}
                 className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-3 rounded-lg transition-colors disabled:opacity-50"
               >
-                {loading ? "Sending OTP..." : "Send Verification Code"}
+                {loading ? "Sending Link..." : "Send Confirmation Link"}
               </button>
             </form>
-          ) : (
-            <form onSubmit={handleVerifyOtp} className="space-y-4">
-              <div className="text-center mb-4">
-                <p className="text-slate-300">We sent a code to</p>
-                <p className="text-teal-400 font-medium">{email}</p>
-              </div>
-
-              {/* OTP Input - Now supports 8 digits */}
-              <div>
-                <label htmlFor="otp" className="block text-sm font-medium text-slate-300 mb-2">
-                  Enter Verification Code
-                </label>
-                <input
-                  type="text"
-                  id="otp"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 8))}
-                  className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-center text-2xl tracking-widest"
-                  placeholder="00000000"
-                  maxLength={8}
-                  required
-                />
-                <p className="text-slate-400 text-xs mt-1 text-center">
-                  Enter the {otp.length}/8 digit code from your email
-                </p>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading || otp.length < 6}
-                className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-3 rounded-lg transition-colors disabled:opacity-50"
-              >
-                {loading ? "Verifying..." : "Verify & Create Account"}
-              </button>
-
-              <button
-                type="button"
-                onClick={handleResendOtp}
-                disabled={loading}
-                className="w-full text-slate-400 hover:text-teal-400 text-sm py-2 transition-colors disabled:opacity-50"
-              >
-                Didn't receive the code? Resend
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setStep("form")}
-                className="w-full text-slate-400 hover:text-teal-400 text-sm py-2 transition-colors"
-              >
-                ← Change email
-              </button>
-            </form>
-          )}
         </div>
 
         {/* Login Link */}
