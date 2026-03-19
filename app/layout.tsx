@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Allena Hub",
-  description: "Sean Michael Doinog - Portfolio",
+  description: "A multi-student portfolio platform with account-based admin editing and custom public routes.",
 };
 
 export default function RootLayout({
