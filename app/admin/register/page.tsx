@@ -162,7 +162,7 @@ export default function RegisterPage() {
         setSuccess("We sent a confirmation link to your email. Click it to finish registration and continue to the admin page.");
         setAwaitingConfirmation(true);
       }
-    } catch (err) {
+    } catch {
       setError("An unexpected error occurred");
     }
     setLoading(false);

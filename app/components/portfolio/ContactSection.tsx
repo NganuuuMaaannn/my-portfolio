@@ -1,17 +1,44 @@
-import { FaArrowRight } from "react-icons/fa";
+import type { ComponentType } from "react";
+import {
+  FaArrowRight,
+  FaEnvelope,
+  FaGithub,
+  FaGlobe,
+  FaLinkedin,
+  FaMapMarkerAlt,
+  FaPhoneAlt,
+} from "react-icons/fa";
 
+import { findPrimaryEmail } from "./data";
 import { SectionReveal, TileReveal } from "./PortfolioMotion";
-import type { ContactMethod } from "./types";
+import type { ContactIconName, ContactMethod } from "./types";
 
 type ContactSectionProps = {
+  ownerName: string;
+  portfolioSlug: string;
+  contactMessage: string;
   contactMethods: ContactMethod[];
   onNavigate: (sectionId: string) => void;
 };
 
+const iconMap: Record<ContactIconName, ComponentType<{ className?: string }>> = {
+  email: FaEnvelope,
+  phone: FaPhoneAlt,
+  location: FaMapMarkerAlt,
+  linkedin: FaLinkedin,
+  github: FaGithub,
+  website: FaGlobe,
+};
+
 export function ContactSection({
+  ownerName,
+  portfolioSlug,
+  contactMessage,
   contactMethods,
   onNavigate,
 }: ContactSectionProps) {
+  const primaryEmail = findPrimaryEmail(contactMethods);
+
   return (
     <SectionReveal
       id="contact"
@@ -24,17 +51,18 @@ export function ContactSection({
             Contact
           </p>
           <h2 className="mt-4 text-3xl font-semibold sm:text-4xl">
-            Ready for the final section: a clean contact area that invites action.
+            Ready to reach {ownerName.split(" ")[0]} for collaboration, internship, or project work.
           </h2>
-          <p className="mt-6 text-base leading-8 text-slate-300">
-            Use this area for your real email, phone number, social links, or booking
-            page. For now, it contains placeholder contact details to complete the
-            portfolio.
-          </p>
+          <p className="mt-6 text-base leading-8 text-slate-300">{contactMessage}</p>
 
           <div className="mt-10 flex flex-wrap gap-4">
             <a
-              href="mailto:hello@seanmichael.dev"
+              href={primaryEmail?.href || "#"}
+              onClick={(event) => {
+                if (!primaryEmail) {
+                  event.preventDefault();
+                }
+              }}
               className="inline-flex items-center gap-2 rounded-full bg-teal-400 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-teal-300"
             >
               Send an email
@@ -52,14 +80,15 @@ export function ContactSection({
 
         <div className="grid gap-4 sm:grid-cols-2 auto-cols-fr">
           {contactMethods.map((item, index) => {
-            const Icon = item.icon;
+            const Icon = iconMap[item.icon];
+            const external = item.href.startsWith("http");
 
             return (
-              <TileReveal key={item.label} delay={0.06 + index * 0.05}>
+              <TileReveal key={`${item.label}-${index}`} delay={0.06 + index * 0.05}>
                 <a
                   href={item.href}
-                  target={item.href.startsWith("http") ? "_blank" : undefined}
-                  rel={item.href.startsWith("http") ? "noreferrer" : undefined}
+                  target={external ? "_blank" : undefined}
+                  rel={external ? "noreferrer" : undefined}
                   className="flex flex-col h-full rounded-[30px] border border-white/10 bg-slate-900/66 p-6 shadow-[0_18px_60px_rgba(2,6,23,0.36)] transition hover:-translate-y-1 hover:border-teal-300/30"
                 >
                   <div className="flex h-11 w-11 items-center justify-center rounded-full bg-teal-300/12 text-teal-200">
@@ -68,7 +97,9 @@ export function ContactSection({
                   <p className="mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
                     {item.label}
                   </p>
-                  <p className="mt-2 text-lg font-semibold text-slate-50">{item.value}</p>
+                  <p className="mt-2 text-lg font-semibold break-words text-slate-50">
+                    {item.value}
+                  </p>
                 </a>
               </TileReveal>
             );
@@ -77,12 +108,12 @@ export function ContactSection({
           <TileReveal delay={0.26} className="sm:col-span-2">
             <div className="rounded-[30px] border border-dashed border-orange-300/15 bg-orange-400/10 p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-200">
-                Placeholder reminder
+                Shareable route
               </p>
               <p className="mt-3 text-base leading-8 text-slate-300">
-                The email, phone, portfolio links, and certificate URLs above are dummy
-                values. Replace them with your actual contact information before
-                publishing.
+                Every student portfolio can live at its own public path, such as
+                <span className="font-semibold text-slate-100"> /{portfolioSlug}</span>,
+                while still being managed from the same admin system.
               </p>
             </div>
           </TileReveal>

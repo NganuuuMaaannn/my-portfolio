@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+
+import { getPortfolioPath } from "@/app/components/portfolio/data";
+import { PortfolioEditor } from "@/app/admin/portfolio-editor";
+import { getPortfolioForUser } from "@/lib/portfolio-store";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Admin - Allena Hub",
@@ -19,6 +23,11 @@ export default async function AdminPage() {
     redirect("/admin/login");
   }
 
+  const { portfolio, errorMessage } = await getPortfolioForUser(user);
+  const publicPath = getPortfolioPath(portfolio.portfolioSlug);
+  const userLabel = user.user_metadata?.name || user.email || "Admin";
+  const userInitial = userLabel.charAt(0).toUpperCase();
+
   const handleSignOut = async () => {
     "use server";
     const supabase = await createClient();
@@ -28,29 +37,34 @@ export default async function AdminPage() {
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100">
-      {/* Admin Header */}
       <header className="bg-slate-800 border-b border-slate-700 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-teal-400">Admin Dashboard</h1>
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-teal-400">Admin Dashboard</h1>
+            <p className="mt-1 text-sm text-slate-400">
+              Manage the portfolio content for your account and public route.
+            </p>
+          </div>
+
           <nav className="flex items-center gap-4">
-            <Link href="/" className="text-slate-300 hover:text-teal-400 transition-colors">
-              View Site
+            <Link
+              href={publicPath}
+              target="_blank"
+              className="text-slate-300 hover:text-teal-400 transition-colors"
+            >
+              View Portfolio
             </Link>
             <div className="flex items-center gap-2">
-              {user.user_metadata?.avatar_url && (
-                <img 
-                  src={user.user_metadata.avatar_url} 
-                  alt="Avatar" 
-                  className="w-8 h-8 rounded-full"
-                />
-              )}
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-700 text-xs font-semibold text-teal-300">
+                {userInitial}
+              </div>
               <span className="text-slate-300">
-                {user.user_metadata?.name || user.email}
+                {userLabel}
               </span>
               <form action={handleSignOut}>
-                <button 
+                <button
                   type="submit"
-                  className="text-slate-300 hover:text-orange-400 transition-colors ml-2"
+                  className="ml-2 text-slate-300 transition-colors hover:text-orange-400"
                 >
                   Sign Out
                 </button>
@@ -60,59 +74,53 @@ export default async function AdminPage() {
         </div>
       </header>
 
-      {/* Admin Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        {/* Welcome Message */}
+      <main className="mx-auto max-w-7xl px-6 py-8">
         <div className="mb-8">
           <h2 className="text-xl text-slate-300">
-            Welcome back, {user.user_metadata?.name || user.email?.split('@')[0]}!
+            Welcome back, {user.user_metadata?.name || user.email?.split("@")[0]}.
           </h2>
+          <p className="mt-2 text-sm text-slate-400">
+            Each student account owns one portfolio row, and the public page is served from
+            its saved slug, such as <span className="text-teal-300">{publicPath}</span>.
+          </p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-slate-800 rounded-lg p-6 border border-slate-700">
-            <h3 className="text-slate-400 text-sm uppercase tracking-wide mb-2">Total Projects</h3>
-            <p className="text-3xl font-bold text-teal-400">6</p>
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
+          <div className="rounded-lg border border-slate-700 bg-slate-800 p-6">
+            <h3 className="mb-2 text-sm uppercase tracking-wide text-slate-400">
+              Portfolio Slug
+            </h3>
+            <p className="text-xl font-bold text-teal-400">{portfolio.portfolioSlug}</p>
           </div>
-          <div className="bg-slate-800 rounded-lg p-6 border border-slate-700">
-            <h3 className="text-slate-400 text-sm uppercase tracking-wide mb-2">Certificates</h3>
-            <p className="text-3xl font-bold text-orange-400">4</p>
+          <div className="rounded-lg border border-slate-700 bg-slate-800 p-6">
+            <h3 className="mb-2 text-sm uppercase tracking-wide text-slate-400">
+              Total Projects
+            </h3>
+            <p className="text-3xl font-bold text-teal-400">{portfolio.projects.length}</p>
           </div>
-          <div className="bg-slate-800 rounded-lg p-6 border border-slate-700">
-            <h3 className="text-slate-400 text-sm uppercase tracking-wide mb-2">Contact Messages</h3>
-            <p className="text-3xl font-bold text-blue-400">0</p>
+          <div className="rounded-lg border border-slate-700 bg-slate-800 p-6">
+            <h3 className="mb-2 text-sm uppercase tracking-wide text-slate-400">
+              Certificates
+            </h3>
+            <p className="text-3xl font-bold text-orange-400">
+              {portfolio.certificates.length}
+            </p>
           </div>
-          <div className="bg-slate-800 rounded-lg p-6 border border-slate-700">
-            <h3 className="text-slate-400 text-sm uppercase tracking-wide mb-2">Page Views</h3>
-            <p className="text-3xl font-bold text-purple-400">-</p>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="bg-slate-800 rounded-lg p-6 border border-slate-700">
-          <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-          <div className="flex flex-wrap gap-4">
-            <button className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg transition-colors">
-              Add Project
-            </button>
-            <button className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition-colors">
-              Add Certificate
-            </button>
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
-              Manage Content
-            </button>
-            <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">
-              View Analytics
-            </button>
+          <div className="rounded-lg border border-slate-700 bg-slate-800 p-6">
+            <h3 className="mb-2 text-sm uppercase tracking-wide text-slate-400">
+              Visibility
+            </h3>
+            <p className="text-3xl font-bold text-blue-400">
+              {portfolio.isPublished ? "Live" : "Draft"}
+            </p>
           </div>
         </div>
 
-        {/* Recent Activity */}
-        <div className="mt-8 bg-slate-800 rounded-lg p-6 border border-slate-700">
-          <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
-          <p className="text-slate-400">No recent activity to display.</p>
-        </div>
+        <PortfolioEditor
+          userId={user.id}
+          initialPortfolio={portfolio}
+          initialErrorMessage={errorMessage}
+        />
       </main>
     </div>
   );
