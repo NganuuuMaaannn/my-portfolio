@@ -14,6 +14,8 @@ import { PortfolioHeader } from "./PortfolioHeader";
 import { PageIntroOverlay } from "./PortfolioMotion";
 import { ProjectsSection } from "./ProjectsSection";
 import { createClient } from "@/lib/supabase";
+import { revealEase } from "./PortfolioMotion";
+import { motion } from "framer-motion";
 
 type PortfolioPageProps = {
   portfolio: PortfolioContent;
@@ -157,8 +159,18 @@ export function PortfolioPage({
   return (
     <main className="relative overflow-hidden pb-16 text-slate-100">
       <PageIntroOverlay />
-      <div className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(circle_at_top_left,rgba(20,184,166,0.18),transparent_26%),radial-gradient(circle_at_top_right,rgba(249,115,22,0.12),transparent_24%),linear-gradient(180deg,#050816_0%,#0b1120_46%,#111827_100%)]" />
-      <div className="pointer-events-none absolute inset-0 -z-10 opacity-40 [bg-[linear-gradient(rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.08)_1px,transparent_1px)]] [bg-size-[72px_72px]]" />
+      <motion.div
+        className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(circle_at_top_left,rgba(236,72,153,0.22),transparent_22%),radial-gradient(circle_at_bottom_right,rgba(16,185,129,0.16),transparent_24%),linear-gradient(180deg,#050816_0%,#081120_42%,#0d1a2b_100%)]"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.1, ease: revealEase }}
+      />
+      <motion.div
+        className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(rgba(148,163,184,0.3)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.3)_1px,transparent_1px)] bg-size-[70px_70px]"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.15 }}
+        transition={{ duration: 1.2, delay: 0.15, ease: revealEase }}
+      />
 
       <PortfolioHeader navItems={livePortfolio.navItems} onNavigate={scrollToSection} />
       <HeroSection

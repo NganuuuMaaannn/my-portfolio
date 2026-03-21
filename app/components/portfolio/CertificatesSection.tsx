@@ -12,12 +12,13 @@ export function CertificatesSection({
   certificates,
 }: CertificatesSectionProps) {
   return (
-    <SectionReveal
-      id="certificates"
-      className="mx-auto max-w-6xl scroll-mt-28 px-6 py-16 lg:px-8 lg:py-20"
-      delay={0.06}
-    >
-      <div className="rounded-[36px] border border-white/10 bg-slate-900/68 p-8 shadow-[0_24px_80px_rgba(2,6,23,0.34)] backdrop-blur sm:p-10">
+    <div className="relative min-h-screen overflow-x-hidden">
+      <SectionReveal
+        id="certificates"
+        className="mx-auto max-w-6xl scroll-mt-28 px-6 py-16 lg:px-8 lg:py-20"
+        delay={0.06}
+      >
+
         <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-2xl font-semibold uppercase tracking-[0.26em] text-teal-200">
@@ -29,7 +30,7 @@ export function CertificatesSection({
         <div className="grid gap-6 md:grid-cols-2 auto-cols-fr">
           {certificates.map((certificate, index) => (
             <TileReveal key={certificate.title} delay={0.06 + index * 0.07} className="h-full">
-              <article className="flex h-full flex-col rounded-[30px] border border-white/10 bg-white/5 p-5 transition hover:-translate-y-1 hover:border-teal-300/30">
+              <article className="flex h-full flex-col rounded-4xl border border-white/10 bg-slate-900/66 p-5 shadow-[0_18px_60px_rgba(2,6,23,0.36)] backdrop-blur transition hover:-translate-y-1 hover:border-teal-300/30">
                 <div className="overflow-hidden rounded-3xl border border-white/10 bg-slate-950/70 h-full">
                   <Image
                     src={certificate.image}
@@ -80,7 +81,7 @@ export function CertificatesSection({
             </TileReveal>
           ))}
         </div>
-      </div>
-    </SectionReveal>
+      </SectionReveal>
+    </div>
   );
 }

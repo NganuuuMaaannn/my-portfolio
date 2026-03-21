@@ -40,7 +40,7 @@ export function PortfolioHeader({
         }`}
     >
       <HeaderReveal delay={0.88}>
-        <div className="flex justify-center items-center rounded-full border border-white/10 bg-slate-900/70 px-6 py-3 backdrop-blur-xl shadow-lg">
+        <div className="flex justify-center items-center rounded-full bg-slate-900/66 backdrop-blur-md border border-white/10 shadow-md px-6 py-3">
           <nav className="flex items-center gap-6 md:gap-12 text-sm md:text-lg font-medium text-slate-200 overflow-x-auto no-scrollbar">
             {navItems.map((item) => (
               <div

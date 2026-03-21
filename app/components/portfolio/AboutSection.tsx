@@ -1,7 +1,9 @@
-import Image from "next/image";
+"use client";
 
-import { SectionReveal, TileReveal } from "./PortfolioMotion";
+import Image from "next/image";
 import type { Capability } from "./types";
+import { motion } from "framer-motion";
+import { revealEase } from "./PortfolioMotion";
 
 type AboutSectionProps = {
   ownerName: string;
@@ -11,78 +13,73 @@ type AboutSectionProps = {
   capabilities: Capability[];
 };
 
-export function AboutSection({
-  ownerName,
-  aboutBio,
-  roleTitle,
-  specialty,
-  capabilities,
-}: AboutSectionProps) {
+
+function getAboutCopy(ownerName: string, aboutBio: string) {
+  const trimmedBio = aboutBio.trim();
+
+  if (trimmedBio) {
+    return trimmedBio;
+  }
+
+  const resolvedName = ownerName.trim();
+
+  return `Hi! I'm ${resolvedName}, a front-end developer passionate about modern design, smooth interactions, and responsive user interfaces. I focus mainly on front-end development while also understanding basic back-end concepts. I've worked with React Native, React JS, Next.js, TypeScript, and JavaScript, and I enjoy adding a creative touch through design, photo editing, and video work. I'm adaptable, detail-oriented, and always eager to learn new frameworks and programming languages to keep growing in tech.`;
+}
+
+export function AboutSection({ ownerName, aboutBio }: AboutSectionProps) {
+  const resolvedOwnerName = ownerName.trim() || "Sean";
+  const resolvedAboutCopy = getAboutCopy(ownerName, aboutBio);
+
   return (
-    <SectionReveal
-      id="about"
-      className="mx-auto max-w-6xl scroll-mt-28 px-6 py-16 lg:px-8 lg:py-20"
-      delay={0.04}
-    >
-      <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-        <div className="rounded-[36px] border border-white/10 bg-slate-900/68 p-8 shadow-[0_24px_70px_rgba(2,6,23,0.32)] backdrop-blur sm:p-10">
-          <p className="text-sm font-semibold uppercase tracking-[0.26em] text-teal-200">
-            About Me
-          </p>
-          <h2 className="mt-4 text-3xl font-semibold text-slate-50 sm:text-4xl">
-            {ownerName} turns ideas into interfaces that feel intentional, useful, and easy to trust.
-          </h2>
-          <p className="mt-6 text-base leading-8 text-slate-300">{aboutBio}</p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 auto-rows-fr">
-            {capabilities.map((item, index) => (
-              <TileReveal key={`${item.title}-${index}`} delay={0.08 + index * 0.06}>
-                <div className="flex h-full flex-col rounded-[28px] border border-white/10 bg-white/5 p-5">
-                  <h3 className="text-lg font-semibold text-slate-50">{item.title}</h3>
-                  <p className="mt-3 text-sm leading-7 text-slate-300">{item.description}</p>
-                </div>
-              </TileReveal>
-            ))}
-          </div>
-        </div>
+    <div className="relative min-h-screen overflow-x-hidden text-slate-100">
+      <section
+        id="about"
+        className="relative mx-auto max-w-6xl scroll-mt-28 px-6 py-20 lg:px-8 lg:py-24"
+      >
+        <div className="pointer-events-none absolute -left-24 top-6 h-48 w-48 rounded-full bg-pink-500/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-8 right-0 h-56 w-56 rounded-full bg-teal-400/10 blur-3xl" />
 
-        <div className="relative">
-          <div className="absolute inset-6 rounded-[38px] bg-orange-400/20 blur-3xl" />
-          <div className="relative rounded-[36px] border border-white/10 bg-slate-900/65 p-6 shadow-[0_28px_90px_rgba(2,6,23,0.36)]">
+        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_420px] lg:gap-20">
+          <div className="max-w-3xl">
+            <motion.h2
+              className="text-4xl font-bold tracking-tight text-slate-50 sm:text-5xl"
+              initial={{ opacity: 0, y: 34 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 1, ease: revealEase }}
+            >
+              About Me
+            </motion.h2>
+
+            <motion.p
+              className="mt-10 max-w-2xl text-[15px] leading-[2.1] text-slate-200/90 sm:text-[18px]"
+              initial={{ opacity: 0, y: 34 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 1, delay: 0.2, ease: revealEase }}
+            >
+              {resolvedAboutCopy}
+            </motion.p>
+          </div>
+
+          <div className="absolute inset-8 -z-10 rounded-[34px]" />
+          <motion.div
+            className="mx-auto w-full max-w-[420px] overflow-hidden rounded-[26px] shadow-[0_24px_80px_rgba(2,6,23,0.42)]"
+            initial={{ opacity: 0, y: 34 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.25 }}
+            transition={{ duration: 1, delay: 0.4, ease: revealEase }}
+          >
             <Image
-              src="/profile-portrait.svg"
-              alt={`${ownerName} profile portrait placeholder`}
-              width={720}
-              height={840}
-              className="aspect-4/5 w-full rounded-[28px] object-cover"
-              priority
+              src="/Sample.png"
+              alt={`${resolvedOwnerName} portrait`}
+              width={840}
+              height={1040}
+              className="aspect-4/5 h-full w-full object-cover transition duration-1000 hover:scale-105"
             />
-
-            <div className="mt-5 grid gap-4 sm:grid-cols-2 auto-rows-fr">
-              <TileReveal delay={0.16}>
-                <div className="flex h-full flex-col rounded-3xl border border-white/10 bg-white/6 px-5 py-4 shadow-sm">
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
-                    Role
-                  </p>
-
-                  <p className="mt-2 text-lg font-semibold text-slate-50">
-                    {roleTitle}
-                  </p>
-                </div>
-              </TileReveal>
-
-              <TileReveal delay={0.22}>
-                <div className="flex h-full flex-col rounded-3xl bg-slate-950 px-5 py-4 text-white shadow-sm">
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/60">
-                    Specialty
-                  </p>
-
-                  <p className="mt-2 text-lg font-semibold">{specialty}</p>
-                </div>
-              </TileReveal>
-            </div>
-          </div>
+          </motion.div>
         </div>
-      </div>
-    </SectionReveal>
+      </section>
+    </div>
   );
 }
