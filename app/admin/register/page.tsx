@@ -21,6 +21,10 @@ export default function RegisterPage() {
   // Show/hide password states
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const confirmationRedirectUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/admin/auth/callback?source=signup-confirmation`
+      : "/admin/auth/callback?source=signup-confirmation";
 
   // Real-time field errors
   const [fieldErrors, setFieldErrors] = useState<{
@@ -149,7 +153,7 @@ export default function RegisterPage() {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/admin/auth/callback`,
+          emailRedirectTo: confirmationRedirectUrl,
           data: {
             name: name,
           },
@@ -178,7 +182,7 @@ export default function RegisterPage() {
       type: "signup",
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/admin/auth/callback`,
+        emailRedirectTo: confirmationRedirectUrl,
       },
     });
 
@@ -254,6 +258,7 @@ export default function RegisterPage() {
 
             <p className="text-xs text-slate-500 text-center mt-6">
               This page will refresh automatically and redirect once your email is confirmed.
+              The confirmation tab will also try to close itself after success.
             </p>
           </div>
         </div>
@@ -264,12 +269,6 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
-        {/* Logo/Title */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-teal-400">Allena Hub</h1>
-          <p className="text-slate-400 mt-2">Create Admin Account</p>
-        </div>
-
         {/* Register Form */}
         <div className="bg-slate-800 rounded-lg p-8 border border-slate-700">
           {error && (

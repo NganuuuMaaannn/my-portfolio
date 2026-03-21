@@ -151,6 +151,23 @@ export default function Home() {
     };
   }, []);
 
+  useEffect(() => {
+    const currentUrl = new URL(window.location.href);
+    const authCode = currentUrl.searchParams.get("code");
+
+    if (!authCode) {
+      return;
+    }
+
+    currentUrl.pathname = "/admin/auth/callback";
+
+    if (!currentUrl.searchParams.get("source")) {
+      currentUrl.searchParams.set("source", "signup-confirmation");
+    }
+
+    window.location.replace(currentUrl.toString());
+  }, []);
+
   const animateScrollTo = (
     targetY: number,
     duration = 1100,
