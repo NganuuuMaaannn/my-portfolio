@@ -30,8 +30,8 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
               <article className="flex h-full flex-col mt-auto rounded-4xl border border-white/10 bg-slate-900/66 p-5 shadow-[0_18px_60px_rgba(2,6,23,0.36)] backdrop-blur transition hover:-translate-y-1 hover:border-teal-300/30">
                 <div className="group relative overflow-hidden rounded-[28px]">
                   <Image
-                    src="/project-cover-placeholder.svg"
-                    alt={`${project.title} preview placeholder`}
+                    src={project.image || "/project-cover-placeholder.svg"}
+                    alt={`${project.title} preview`}
                     width={960}
                     height={720}
                     className="aspect-4/3 w-full object-cover transition duration-700 group-hover:scale-105"

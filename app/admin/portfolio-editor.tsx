@@ -382,7 +382,7 @@ export function PortfolioEditor({
 
       <SectionCard
         title="About and Contact"
-        description="Use these text blocks to describe the student and add a clear contact invitation."
+        description="Use these fields to describe the student, choose the about image, and add a clear contact invitation."
       >
         <div className="grid gap-5">
           <Field label="About Bio">
@@ -392,6 +392,17 @@ export function PortfolioEditor({
                 updatePortfolioField("aboutBio", event.target.value)
               }
               className={textAreaClassName}
+            />
+          </Field>
+
+          <Field label="About Image Path">
+            <input
+              value={portfolio.aboutImage}
+              onChange={(event) =>
+                updatePortfolioField("aboutImage", event.target.value)
+              }
+              className={inputClassName}
+              placeholder="/profile-portrait.svg"
             />
           </Field>
 
@@ -579,6 +590,19 @@ export function PortfolioEditor({
                   />
                 </Field>
 
+                <Field label="Image Path">
+                  <input
+                    value={item.image}
+                    onChange={(event) =>
+                      updateProject(index, "image", event.target.value)
+                    }
+                    className={inputClassName}
+                    placeholder="/project-cover-placeholder.svg"
+                  />
+                </Field>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
                 <Field label="Accent Gradient Classes">
                   <input
                     value={item.accent}
@@ -634,6 +658,7 @@ export function PortfolioEditor({
                   summary: "",
                   stack: [],
                   href: "",
+                  image: "/project-cover-placeholder.svg",
                   accent: "from-[#0f766e] via-[#14b8a6] to-[#99f6e4]",
                 },
               ])

@@ -8,6 +8,7 @@ import { revealEase } from "./PortfolioMotion";
 type AboutSectionProps = {
   ownerName: string;
   aboutBio: string;
+  aboutImage: string;
   roleTitle: string;
   specialty: string;
   capabilities: Capability[];
@@ -26,9 +27,10 @@ function getAboutCopy(ownerName: string, aboutBio: string) {
   return `Hi! I'm ${resolvedName}, a front-end developer passionate about modern design, smooth interactions, and responsive user interfaces. I focus mainly on front-end development while also understanding basic back-end concepts. I've worked with React Native, React JS, Next.js, TypeScript, and JavaScript, and I enjoy adding a creative touch through design, photo editing, and video work. I'm adaptable, detail-oriented, and always eager to learn new frameworks and programming languages to keep growing in tech.`;
 }
 
-export function AboutSection({ ownerName, aboutBio }: AboutSectionProps) {
+export function AboutSection({ ownerName, aboutBio, aboutImage }: AboutSectionProps) {
   const resolvedOwnerName = ownerName.trim() || "Sean";
   const resolvedAboutCopy = getAboutCopy(ownerName, aboutBio);
+  const resolvedAboutImage = aboutImage.trim() || "/profile-portrait.svg";
 
   return (
     <div className="relative min-h-screen overflow-x-hidden text-slate-100">
@@ -71,7 +73,7 @@ export function AboutSection({ ownerName, aboutBio }: AboutSectionProps) {
             transition={{ duration: 1, delay: 0.4, ease: revealEase }}
           >
             <Image
-              src="/Sample.png"
+              src={resolvedAboutImage}
               alt={`${resolvedOwnerName} portrait`}
               width={840}
               height={1040}

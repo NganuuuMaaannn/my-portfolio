@@ -186,6 +186,7 @@ export function PortfolioPage({
       <AboutSection
         ownerName={livePortfolio.ownerName}
         aboutBio={livePortfolio.aboutBio}
+        aboutImage={livePortfolio.aboutImage}
         roleTitle={livePortfolio.roleTitle}
         specialty={livePortfolio.specialty}
         capabilities={livePortfolio.capabilities}

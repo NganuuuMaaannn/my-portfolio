@@ -32,6 +32,7 @@ export type Project = {
   stack: string[];
   href: string;
   accent: string;
+  image: string;
 };
 
 export type Certificate = {
@@ -55,6 +56,7 @@ export type PortfolioContent = {
   headline: string;
   intro: string;
   aboutBio: string;
+  aboutImage: string;
   roleTitle: string;
   specialty: string;
   contactMessage: string;
@@ -75,6 +77,7 @@ export type PortfolioRow = {
   headline: string;
   intro: string;
   about_bio: string;
+  about_image: string;
   role_title: string;
   specialty: string;
   contact_message: string;
@@ -95,6 +98,7 @@ export type PortfolioUpsertPayload = {
   headline: string;
   intro: string;
   about_bio: string;
+  about_image: string;
   role_title: string;
   specialty: string;
   contact_message: string;

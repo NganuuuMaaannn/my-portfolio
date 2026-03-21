@@ -18,6 +18,7 @@ create table if not exists public.student_portfolios (
   headline text not null,
   intro text not null,
   about_bio text not null,
+  about_image text not null default '/Sample.png',
   role_title text not null,
   specialty text not null,
   contact_message text not null,
@@ -34,6 +35,9 @@ create table if not exists public.student_portfolios (
   constraint student_portfolios_slug_length
     check (char_length(portfolio_slug) between 3 and 60)
 );
+
+alter table public.student_portfolios
+  add column if not exists about_image text not null default '/Sample.png';
 
 create index if not exists student_portfolios_owner_id_idx
   on public.student_portfolios (owner_id);

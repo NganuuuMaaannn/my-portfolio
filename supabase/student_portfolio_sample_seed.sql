@@ -31,6 +31,7 @@ begin
     headline,
     intro,
     about_bio,
+    about_image,
     role_title,
     specialty,
     contact_message,
@@ -48,6 +49,7 @@ begin
     'Building clean digital experiences with story, structure, and strong UI rhythm.',
     'This sample portfolio shows how a published student page can look in Allena Hub. Replace it later with your own data from the admin dashboard.',
     'I am Student Name, a frontend-focused student builder who enjoys turning rough concepts into polished websites and app experiences. My process starts with understanding the audience, organizing the content, and then shaping a clean visual system.',
+    '/Sample.png',
     'UI Designer and Frontend Developer',
     'Portfolio sites, admin tools, and modern landing pages.',
     'Reach out for collaboration, internship opportunities, or project work.',
@@ -64,9 +66,9 @@ begin
       {"title":"Team Workflow","description":"I work closely with founders, designers, and developers to ship clear iterations instead of vague big-bang releases."}
     ]'::jsonb,
     '[
-      {"title":"Northstar Commerce Dashboard","category":"Web App","year":"2026","summary":"A sales intelligence dashboard for a growing retail team, built to monitor revenue, orders, and campaign performance in one place.","stack":["Next.js","TypeScript","Tailwind","Chart UI"],"href":"https://example.com/projects/northstar-commerce-dashboard","accent":"from-[#0f766e] via-[#14b8a6] to-[#99f6e4]"},
-      {"title":"PulseFit Mobile Coach","category":"Mobile UX","year":"2026","summary":"A habit-driven fitness app concept with onboarding, personalized routines, and friendly progress feedback for daily motivation.","stack":["React Native","Figma","Health Data","Notifications"],"href":"https://example.com/projects/pulsefit-mobile-coach","accent":"from-[#0f172a] via-[#334155] to-[#cbd5e1]"},
-      {"title":"Classroom Connect Portal","category":"Education","year":"2025","summary":"A portal for students and teachers to manage assignments, attendance, and announcements with a calm and approachable interface.","stack":["Next.js","Supabase","Role Access","Messaging"],"href":"https://example.com/projects/classroom-connect-portal","accent":"from-[#9a3412] via-[#f97316] to-[#fdba74]"}
+      {"title":"Northstar Commerce Dashboard","category":"Web App","year":"2026","summary":"A sales intelligence dashboard for a growing retail team, built to monitor revenue, orders, and campaign performance in one place.","stack":["Next.js","TypeScript","Tailwind","Chart UI"],"href":"https://example.com/projects/northstar-commerce-dashboard","accent":"from-[#0f766e] via-[#14b8a6] to-[#99f6e4]","image":"/project-cover-placeholder.svg"},
+      {"title":"PulseFit Mobile Coach","category":"Mobile UX","year":"2026","summary":"A habit-driven fitness app concept with onboarding, personalized routines, and friendly progress feedback for daily motivation.","stack":["React Native","Figma","Health Data","Notifications"],"href":"https://example.com/projects/pulsefit-mobile-coach","accent":"from-[#0f172a] via-[#334155] to-[#cbd5e1]","image":"/project-cover-placeholder.svg"},
+      {"title":"Classroom Connect Portal","category":"Education","year":"2025","summary":"A portal for students and teachers to manage assignments, attendance, and announcements with a calm and approachable interface.","stack":["Next.js","Supabase","Role Access","Messaging"],"href":"https://example.com/projects/classroom-connect-portal","accent":"from-[#9a3412] via-[#f97316] to-[#fdba74]","image":"/project-cover-placeholder.svg"}
     ]'::jsonb,
     '[
       {"title":"UX Strategy Foundations","website":"DesignLab Academy","href":"https://example.com/certificates/ux-strategy-foundations","image":"/certificate-ux-strategy.svg","issued":"Issued Jan 2026"},
@@ -87,6 +89,7 @@ begin
     headline = excluded.headline,
     intro = excluded.intro,
     about_bio = excluded.about_bio,
+    about_image = excluded.about_image,
     role_title = excluded.role_title,
     specialty = excluded.specialty,
     contact_message = excluded.contact_message,

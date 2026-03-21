@@ -20,6 +20,9 @@ const projectAccents = [
   "from-[#1d4ed8] via-[#60a5fa] to-[#dbeafe]",
 ] as const;
 
+const defaultAboutImage = "/profile-portrait.svg";
+const defaultProjectImage = "/project-cover-placeholder.svg";
+
 export const navItems: NavItem[] = [
   { label: "About", id: "about" },
   { label: "Projects", id: "projects" },
@@ -77,6 +80,7 @@ const defaultProjects: Project[] = [
     stack: ["Next.js", "TypeScript", "Tailwind", "Chart UI"],
     href: "https://example.com/projects/northstar-commerce-dashboard",
     accent: projectAccents[0],
+    image: defaultProjectImage,
   },
   {
     title: "PulseFit Mobile Coach",
@@ -87,6 +91,7 @@ const defaultProjects: Project[] = [
     stack: ["React Native", "Figma", "Health Data", "Notifications"],
     href: "https://example.com/projects/pulsefit-mobile-coach",
     accent: projectAccents[1],
+    image: defaultProjectImage,
   },
   {
     title: "Classroom Connect Portal",
@@ -97,6 +102,7 @@ const defaultProjects: Project[] = [
     stack: ["Next.js", "Supabase", "Role Access", "Messaging"],
     href: "https://example.com/projects/classroom-connect-portal",
     accent: projectAccents[2],
+    image: defaultProjectImage,
   },
   {
     title: "Harvest Supply Tracker",
@@ -107,6 +113,7 @@ const defaultProjects: Project[] = [
     stack: ["Dashboard", "Inventory", "Analytics", "Reports"],
     href: "https://example.com/projects/harvest-supply-tracker",
     accent: projectAccents[3],
+    image: defaultProjectImage,
   },
   {
     title: "Nomad Studio Portfolio Builder",
@@ -117,6 +124,7 @@ const defaultProjects: Project[] = [
     stack: ["CMS", "Blocks", "Branding", "Animations"],
     href: "https://example.com/projects/nomad-studio-portfolio-builder",
     accent: projectAccents[4],
+    image: defaultProjectImage,
   },
   {
     title: "Beacon Support Hub",
@@ -127,6 +135,7 @@ const defaultProjects: Project[] = [
     stack: ["Knowledge Base", "Support Ops", "Search", "Workflows"],
     href: "https://example.com/projects/beacon-support-hub",
     accent: projectAccents[5],
+    image: defaultProjectImage,
   },
 ];
 
@@ -280,6 +289,7 @@ export function buildDefaultPortfolioContent(seed: PortfolioSeed = {}): Portfoli
     intro:
       "This portfolio is ready for real student content. Replace the sample copy, projects, and contact details with your own work from the admin dashboard.",
     aboutBio: `I am ${ownerName}, a frontend-focused student builder who enjoys turning rough concepts into polished websites and app experiences. My work usually starts with understanding the audience, organizing the content, and then building a visual system that feels calm and memorable.`,
+    aboutImage: defaultAboutImage,
     roleTitle: "UI Designer and Frontend Developer",
     specialty: "Portfolio sites, admin tools, and modern landing pages.",
     contactMessage:
@@ -367,6 +377,10 @@ function normalizeProjects(value: unknown, fallback: Project[]) {
           item.accent,
           projectAccents[index % projectAccents.length],
         ),
+        image: normalizeString(
+          item.image,
+          fallback[index]?.image || defaultProjectImage,
+        ),
       };
     })
     .filter((item) => item.title && item.summary);
@@ -442,6 +456,7 @@ export function normalizePortfolioContent(
     headline: normalizeString(row?.headline, fallback.headline),
     intro: normalizeString(row?.intro, fallback.intro),
     aboutBio: normalizeString(row?.about_bio, fallback.aboutBio),
+    aboutImage: normalizeString(row?.about_image, fallback.aboutImage),
     roleTitle: normalizeString(row?.role_title, fallback.roleTitle),
     specialty: normalizeString(row?.specialty, fallback.specialty),
     contactMessage: normalizeString(row?.contact_message, fallback.contactMessage),
@@ -467,6 +482,7 @@ export function createPortfolioUpsertPayload(
       headline: portfolio.headline,
       intro: portfolio.intro,
       about_bio: portfolio.aboutBio,
+      about_image: portfolio.aboutImage,
       role_title: portfolio.roleTitle,
       specialty: portfolio.specialty,
       contact_message: portfolio.contactMessage,
@@ -487,6 +503,7 @@ export function createPortfolioUpsertPayload(
     headline: normalized.headline,
     intro: normalized.intro,
     about_bio: normalized.aboutBio,
+    about_image: normalized.aboutImage,
     role_title: normalized.roleTitle,
     specialty: normalized.specialty,
     contact_message: normalized.contactMessage,
