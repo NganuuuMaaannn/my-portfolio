@@ -17,6 +17,32 @@ html {
   scroll-padding-top: 6rem;
 }
 
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+html.portfolio-scrollbar-hidden,
+body.portfolio-scrollbar-hidden,
+.portfolio-scrollbar-hidden,
+.portfolio-scrollbar-hidden * {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+html.portfolio-scrollbar-hidden::-webkit-scrollbar,
+body.portfolio-scrollbar-hidden::-webkit-scrollbar,
+.portfolio-scrollbar-hidden::-webkit-scrollbar,
+.portfolio-scrollbar-hidden *::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 body {
   min-height: 100vh;
   background:

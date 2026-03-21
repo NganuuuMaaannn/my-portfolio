@@ -36,6 +36,16 @@ export function PortfolioPage({
   }, [portfolio]);
 
   useEffect(() => {
+    document.documentElement.classList.add("portfolio-scrollbar-hidden");
+    document.body.classList.add("portfolio-scrollbar-hidden");
+
+    return () => {
+      document.documentElement.classList.remove("portfolio-scrollbar-hidden");
+      document.body.classList.remove("portfolio-scrollbar-hidden");
+    };
+  }, []);
+
+  useEffect(() => {
     if (!enableRealtime) {
       return;
     }
@@ -157,7 +167,7 @@ export function PortfolioPage({
   };
 
   return (
-    <main className="relative overflow-hidden pb-16 text-slate-100">
+    <main className="portfolio-scrollbar-hidden relative overflow-hidden pb-16 text-slate-100">
       <PageIntroOverlay />
       <motion.div
         className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(circle_at_top_left,rgba(236,72,153,0.22),transparent_22%),radial-gradient(circle_at_bottom_right,rgba(16,185,129,0.16),transparent_24%),linear-gradient(180deg,#050816_0%,#081120_42%,#0d1a2b_100%)]"
