@@ -74,7 +74,6 @@ export default function RegisterPage() {
         break;
       case "confirmPassword":
         if (!value) errors.confirmPassword = "Please confirm your password";
-        else if (value !== password) errors.confirmPassword = "Passwords do not match";
         break;
     }
 
