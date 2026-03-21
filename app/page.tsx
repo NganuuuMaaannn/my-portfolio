@@ -236,7 +236,7 @@ export default function Home() {
         <div className="mx-auto w-full max-w-7xl">
           <section className="relative flex min-h-[calc(100svh-3rem)] flex-col items-center justify-center overflow-hidden sm:px-10">
             <motion.div
-              className="relative flex max-w-4xl flex-col items-center"
+              className="relative mx-auto flex max-w-4xl flex-col items-center justify-center text-center"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.45 }}
@@ -252,7 +252,10 @@ export default function Home() {
                 className="mt-8 text-5xl font-semibold leading-tight text-slate-50 sm:text-6xl xl:text-7xl"
                 variants={itemVariants}
               >
-                Welcome to Allena Hub
+                Welcome to Allena
+                <span className="ml-2 font-bold inline-flex rounded-md bg-[#81e6d9] px-3 py-0 text-slate-950">
+                  Hub
+                </span>
               </motion.h1>
               <motion.p
                 className="mt-6 max-w-3xl text-lg leading-8 text-slate-300"
@@ -270,21 +273,21 @@ export default function Home() {
               </motion.p>
 
               <motion.div
-                className="mt-10 flex flex-wrap items-center justify-center gap-4"
+                className="mt-10 flex w-full max-w-md flex-nowrap items-center justify-center gap-3"
                 variants={itemVariants}
               >
-                <motion.div variants={cardVariants}>
+                <motion.div variants={cardVariants} className="flex-1">
                   <Link
                     href="/admin/login"
-                    className="inline-flex min-w-40 items-center justify-center rounded-full border border-white/18 bg-white/6 px-6 py-3 text-sm font-semibold text-slate-100 transition hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/10"
+                    className="inline-flex w-full min-w-0 items-center justify-center whitespace-nowrap rounded-full border border-white/18 bg-white/6 px-5 py-3 text-sm font-semibold text-slate-100 transition hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/10"
                   >
                     Sign In
                   </Link>
                 </motion.div>
-                <motion.div variants={cardVariants}>
+                <motion.div variants={cardVariants} className="flex-1">
                   <Link
                     href="/admin/register"
-                    className="inline-flex min-w-40 items-center justify-center rounded-full border border-teal-200/18 bg-slate-800/80 px-6 py-3 text-sm font-semibold text-slate-100 transition hover:-translate-y-0.5 hover:border-teal-300/40 hover:bg-slate-700/80"
+                    className="inline-flex w-full min-w-0 items-center justify-center whitespace-nowrap rounded-full border border-teal-200/18 bg-slate-800/80 px-5 py-3 text-sm font-semibold text-slate-100 transition hover:-translate-y-0.5 hover:border-teal-300/40 hover:bg-slate-700/80"
                   >
                     Create Account
                   </Link>

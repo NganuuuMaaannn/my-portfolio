@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Allena Hub",
+  title: "AllenaHub",
   description: "A multi-student portfolio platform with account-based admin editing and custom public routes.",
 };
 
