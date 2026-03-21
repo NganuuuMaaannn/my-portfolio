@@ -8,8 +8,19 @@ import { LuEye, LuEyeClosed } from "react-icons/lu";
 const EyeIcon = ({ isVisible }: { isVisible: boolean }) =>
   isVisible ? <LuEye className="w-5 h-5" /> : <LuEyeClosed className="w-5 h-5" />;
 
+const formatNameInput = (value: string) =>
+  value
+    .toLocaleLowerCase()
+    .replace(/(^|[\s'-])(\p{L})/gu, (match, prefix: string, letter: string) => {
+      void match;
+      return `${prefix}${letter.toLocaleUpperCase()}`;
+    });
+
+const normalizeNameValue = (value: string) => formatNameInput(value).trim().replace(/\s+/g, " ");
+
 export default function RegisterPage() {
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -28,7 +39,8 @@ export default function RegisterPage() {
 
   // Real-time field errors
   const [fieldErrors, setFieldErrors] = useState<{
-    name?: string;
+    firstName?: string;
+    lastName?: string;
     email?: string;
     password?: string;
     confirmPassword?: string;
@@ -57,28 +69,32 @@ export default function RegisterPage() {
   }, [password]);
 
   // Validate field on blur
-  const validateField = (field: string, value: string) => {
-    const errors: typeof fieldErrors = {};
+  const validateField = (field: keyof typeof fieldErrors, value: string) => {
+    let errorMessage = "";
 
     switch (field) {
-      case "name":
-        if (!value.trim()) errors.name = "Full name is required";
+      case "firstName":
+        if (!normalizeNameValue(value)) errorMessage = "First name is required";
+        break;
+      case "lastName":
+        if (!normalizeNameValue(value)) errorMessage = "Last name is required";
         break;
       case "email":
-        if (!value.trim()) errors.email = "Email is required";
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) errors.email = "Please enter a valid email";
+        if (!value.trim()) errorMessage = "Email is required";
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) errorMessage = "Please enter a valid email";
         break;
       case "password":
-        if (!value) errors.password = "Password is required";
-        else if (value.length < 8) errors.password = "Password must be at least 8 characters";
+        if (!value) errorMessage = "Password is required";
+        else if (value.length < 8) errorMessage = "Password must be at least 8 characters";
         break;
       case "confirmPassword":
-        if (!value) errors.confirmPassword = "Please confirm your password";
+        if (!value) errorMessage = "Please confirm your password";
+        else if (value !== password) errorMessage = "Passwords do not match";
         break;
     }
 
-    setFieldErrors((prev) => ({ ...prev, ...errors }));
-    return Object.keys(errors).length === 0;
+    setFieldErrors((prev) => ({ ...prev, [field]: errorMessage || undefined }));
+    return !errorMessage;
   };
 
   const formatAuthError = (message: string) => {
@@ -129,8 +145,12 @@ export default function RegisterPage() {
 
     // Validate all fields
     const errors: typeof fieldErrors = {};
+    const normalizedFirstName = normalizeNameValue(firstName);
+    const normalizedLastName = normalizeNameValue(lastName);
+    const fullName = [normalizedFirstName, normalizedLastName].filter(Boolean).join(" ");
 
-    if (!name.trim()) errors.name = "Full name is required";
+    if (!normalizedFirstName) errors.firstName = "First name is required";
+    if (!normalizedLastName) errors.lastName = "Last name is required";
     if (!email.trim()) errors.email = "Email is required";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = "Please enter a valid email";
     if (!password) errors.password = "Password is required";
@@ -154,7 +174,9 @@ export default function RegisterPage() {
         options: {
           emailRedirectTo: confirmationRedirectUrl,
           data: {
-            name: name,
+            first_name: normalizedFirstName,
+            last_name: normalizedLastName,
+            name: fullName,
           },
         },
       });
@@ -268,6 +290,14 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-semibold leading-tight text-slate-50 sm:text-6xl xl:text-5xl">
+            Allena
+            <span className="ml-2 font-bold inline-flex rounded-md bg-[#81e6d9] px-3 py-0 text-slate-950">
+              Hub
+            </span>
+          </h1>
+        </div>
         {/* Register Form */}
         <div className="bg-slate-800 rounded-lg p-8 border border-slate-700">
           {error && (
@@ -282,150 +312,188 @@ export default function RegisterPage() {
           )}
 
           <form onSubmit={handleSendMagicLink} className="space-y-4">
-              {/* Name */}
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-slate-300 mb-2">
-                  Full Name <span className="text-red-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  value={name}
-                  onChange={(e) => {
-                    setName(e.target.value);
-                    if (fieldErrors.name) validateField("name", e.target.value);
-                  }}
-                  onBlur={(e) => validateField("name", e.target.value)}
-                  className={`w-full bg-slate-700 border rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${getInputBorderColor("name", name)}`}
-                  placeholder="Enter your full name"
-                />
-                {fieldErrors.name && (
-                  <p className="text-red-400 text-xs mt-1">{fieldErrors.name}</p>
-                )}
-              </div>
+            {/* Name */}
+            <div>
+              <label htmlFor="firstName" className="block text-sm font-medium text-slate-300 mb-2">
+                First Name <span className="text-red-400">*</span>
+              </label>
+              <input
+                type="text"
+                id="firstName"
+                value={firstName}
+                onChange={(e) => {
+                  const formattedValue = formatNameInput(e.target.value);
+                  setFirstName(formattedValue);
+                  if (fieldErrors.firstName) validateField("firstName", formattedValue);
+                }}
+                onBlur={(e) => {
+                  const normalizedValue = normalizeNameValue(e.target.value);
+                  setFirstName(normalizedValue);
+                  validateField("firstName", normalizedValue);
+                }}
+                className={`w-full bg-slate-700 border rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${getInputBorderColor("firstName", firstName)}`}
+                placeholder="Sean Michael"
+              />
+              {fieldErrors.firstName && (
+                <p className="text-red-400 text-xs mt-1">{fieldErrors.firstName}</p>
+              )}
+            </div>
 
-              {/* Email */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
-                  Email Address <span className="text-red-400">*</span>
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    if (fieldErrors.email) validateField("email", e.target.value);
-                  }}
-                  onBlur={(e) => validateField("email", e.target.value)}
-                  className={`w-full bg-slate-700 border rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${getInputBorderColor("email", email)}`}
-                  placeholder="Enter your email"
-                />
-                {fieldErrors.email && (
-                  <p className="text-red-400 text-xs mt-1">{fieldErrors.email}</p>
-                )}
-              </div>
+            <div>
+              <label htmlFor="lastName" className="block text-sm font-medium text-slate-300 mb-2">
+                Last Name <span className="text-red-400">*</span>
+              </label>
+              <input
+                type="text"
+                id="lastName"
+                value={lastName}
+                onChange={(e) => {
+                  const formattedValue = formatNameInput(e.target.value);
+                  setLastName(formattedValue);
+                  if (fieldErrors.lastName) validateField("lastName", formattedValue);
+                }}
+                onBlur={(e) => {
+                  const normalizedValue = normalizeNameValue(e.target.value);
+                  setLastName(normalizedValue);
+                  validateField("lastName", normalizedValue);
+                }}
+                className={`w-full bg-slate-700 border rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${getInputBorderColor("lastName", lastName)}`}
+                placeholder="Doinog"
+              />
+              {fieldErrors.lastName && (
+                <p className="text-red-400 text-xs mt-1">{fieldErrors.lastName}</p>
+              )}
+            </div>
 
-              {/* Password */}
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
-                  Password <span className="text-red-400">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    id="password"
-                    value={password}
-                    onChange={(e) => {
-                      setPassword(e.target.value);
-                      if (fieldErrors.password) validateField("password", e.target.value);
-                    }}
-                    onBlur={(e) => validateField("password", e.target.value)}
-                    className={`w-full bg-slate-700 border rounded-lg px-4 py-3 pr-12 text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${getInputBorderColor("password", password)}`}
-                    placeholder="Create a password (min 8 characters)"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300 z-10 p-1 rounded focus:outline-none focus:ring-2 focus:ring-teal-500/50"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                    onMouseDown={(e) => e.preventDefault()}
-                  >
-                    <EyeIcon isVisible={showPassword} />
-                  </button>
-                </div>
-                {password && (
-                  <>
-                    {/* Password strength indicator */}
-                    <div className="mt-2">
-                      <div className="flex gap-1 mb-1">
-                        <div className={`h-1 flex-1 rounded ${passwordStrength.level >= 1 ? passwordStrength.color : "bg-slate-600"}`} />
-                        <div className={`h-1 flex-1 rounded ${passwordStrength.level >= 2 ? passwordStrength.color : "bg-slate-600"}`} />
-                        <div className={`h-1 flex-1 rounded ${passwordStrength.level >= 3 ? passwordStrength.color : "bg-slate-600"}`} />
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className={`text-xs ${passwordStrength.level === 1 ? "text-red-400" : passwordStrength.level === 2 ? "text-orange-400" : "text-green-400"}`}>
-                          {passwordStrength.text}
-                        </span>
-                        {/* <span className="text-xs text-slate-400">
+            {/* Email */}
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
+                Email Address <span className="text-red-400">*</span>
+              </label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (fieldErrors.email) validateField("email", e.target.value);
+                }}
+                onBlur={(e) => validateField("email", e.target.value)}
+                className={`w-full bg-slate-700 border rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${getInputBorderColor("email", email)}`}
+                placeholder="Enter your email"
+              />
+              {fieldErrors.email && (
+                <p className="text-red-400 text-xs mt-1">{fieldErrors.email}</p>
+              )}
+            </div>
+
+            {/* Password */}
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
+                Password <span className="text-red-400">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (fieldErrors.password) validateField("password", e.target.value);
+                    if (confirmPassword) validateField("confirmPassword", confirmPassword);
+                  }}
+                  onBlur={(e) => validateField("password", e.target.value)}
+                  className={`w-full bg-slate-700 border rounded-lg px-4 py-3 pr-12 text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${getInputBorderColor("password", password)}`}
+                  placeholder="Create a password (min 8 characters)"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300 z-10 p-1 rounded focus:outline-none focus:ring-2 focus:ring-teal-500/50"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  onMouseDown={(e) => e.preventDefault()}
+                >
+                  <EyeIcon isVisible={showPassword} />
+                </button>
+              </div>
+              {password && (
+                <>
+                  {/* Password strength indicator */}
+                  <div className="mt-2">
+                    <div className="flex gap-1 mb-1">
+                      <div className={`h-1 flex-1 rounded ${passwordStrength.level >= 1 ? passwordStrength.color : "bg-slate-600"}`} />
+                      <div className={`h-1 flex-1 rounded ${passwordStrength.level >= 2 ? passwordStrength.color : "bg-slate-600"}`} />
+                      <div className={`h-1 flex-1 rounded ${passwordStrength.level >= 3 ? passwordStrength.color : "bg-slate-600"}`} />
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className={`text-xs ${passwordStrength.level === 1 ? "text-red-400" : passwordStrength.level === 2 ? "text-orange-400" : "text-green-400"}`}>
+                        {passwordStrength.text}
+                      </span>
+                      {/* <span className="text-xs text-slate-400">
                           {password.length}/8 characters
                         </span> */}
-                      </div>
                     </div>
-                  </>
-                )}
-                {fieldErrors.password && (
-                  <p className="text-red-400 text-xs mt-1">{fieldErrors.password}</p>
-                )}
-              </div>
+                  </div>
+                </>
+              )}
+              {fieldErrors.password && (
+                <p className="text-red-400 text-xs mt-1">{fieldErrors.password}</p>
+              )}
+            </div>
 
-              {/* Confirm Password */}
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-300 mb-2">
-                  Confirm Password <span className="text-red-400">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type={showConfirmPassword ? "text" : "password"}
-                    id="confirmPassword"
-                    value={confirmPassword}
-                    onChange={(e) => {
-                      setConfirmPassword(e.target.value);
-                      if (fieldErrors.confirmPassword) validateField("confirmPassword", e.target.value);
-                    }}
-                    onBlur={(e) => validateField("confirmPassword", e.target.value)}
-                    className={`w-full bg-slate-700 border rounded-lg px-4 py-3 pr-12 text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${getInputBorderColor("confirmPassword", confirmPassword)}`}
-                    placeholder="Confirm your password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300 z-10 p-1 rounded focus:outline-none focus:ring-2 focus:ring-teal-500/50"
-                    aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
-                    onMouseDown={(e) => e.preventDefault()}
-                  >
-                    <EyeIcon isVisible={showConfirmPassword} />
-                  </button>
-                </div>
-                {/* Always show password match status when there's input */}
-                {confirmPassword && (
-                  <p className={`text-xs mt-1 ${password === confirmPassword ? "text-green-400" : "text-red-400"}`}>
-                    {password === confirmPassword ? "✓ Passwords match" : "✗ Passwords do not match"}
-                  </p>
-                )}
-                {fieldErrors.confirmPassword && confirmPassword && (
-                  <p className="text-red-400 text-xs mt-1">{fieldErrors.confirmPassword}</p>
-                )}
+            {/* Confirm Password */}
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-300 mb-2">
+                Confirm Password <span className="text-red-400">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  id="confirmPassword"
+                  value={confirmPassword}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    if (fieldErrors.confirmPassword) validateField("confirmPassword", e.target.value);
+                  }}
+                  onBlur={(e) => validateField("confirmPassword", e.target.value)}
+                  className={`w-full bg-slate-700 border rounded-lg px-4 py-3 pr-12 text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${getInputBorderColor("confirmPassword", confirmPassword)}`}
+                  placeholder="Confirm your password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300 z-10 p-1 rounded focus:outline-none focus:ring-2 focus:ring-teal-500/50"
+                  aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+                  onMouseDown={(e) => e.preventDefault()}
+                >
+                  <EyeIcon isVisible={showConfirmPassword} />
+                </button>
               </div>
+              {/* Always show password match status when there's input */}
+              {confirmPassword && (
+                <p className={`text-xs mt-1 ${password === confirmPassword ? "text-green-400" : "text-red-400"}`}>
+                  {password === confirmPassword ? "✓ Passwords match" : "✗ Passwords do not match"}
+                </p>
+              )}
+              {fieldErrors.confirmPassword && confirmPassword && (
+                <p className="text-red-400 text-xs mt-1">{fieldErrors.confirmPassword}</p>
+              )}
+            </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-3 rounded-lg transition-colors disabled:opacity-50"
-              >
-                {loading ? "Sending Link..." : "Send Confirmation Link"}
-              </button>
-            </form>
+            <div className="relative my-7">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-600"></div>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full mt-5 bg-teal-600 hover:bg-teal-700 text-white font-medium py-3 rounded-lg transition-colors disabled:opacity-50"
+            >
+              {loading ? "Sending Link..." : "Send Confirmation Link"}
+            </button>
+          </form>
         </div>
 
         {/* Login Link */}

@@ -63,6 +63,14 @@ export default function AdminLoginForm({ initialError = "" }: AdminLoginFormProp
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-semibold leading-tight text-slate-50 sm:text-6xl xl:text-5xl">
+            Allena
+            <span className="ml-2 font-bold inline-flex rounded-md bg-[#81e6d9] px-3 py-0 text-slate-950">
+              Hub
+            </span>
+          </h1>
+        </div>
         <div className="bg-slate-800 rounded-lg p-8 border border-slate-700">
           {displayError && (
             <div className="bg-red-500/10 border border-red-500 text-red-400 px-4 py-2 rounded-lg text-sm mb-4">
@@ -71,14 +79,7 @@ export default function AdminLoginForm({ initialError = "" }: AdminLoginFormProp
           )}
 
           <form onSubmit={handleEmailLogin} className="space-y-4">
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-semibold leading-tight text-slate-50 sm:text-6xl xl:text-5xl">
-                Allena
-                <span className="ml-2 font-bold inline-flex rounded-md bg-[#81e6d9] px-3 py-0 text-slate-950">
-                  Hub
-                </span>
-              </h1>
-            </div>
+
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
                 Email
