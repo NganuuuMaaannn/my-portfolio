@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { FaGoogle } from "react-icons/fa";
 import { LuEye, LuEyeClosed } from "react-icons/lu";
@@ -10,11 +11,13 @@ const EyeIcon = ({ isVisible }: { isVisible: boolean }) =>
   isVisible ? <LuEye className="h-5 w-5" /> : <LuEyeClosed className="h-5 w-5" />;
 
 export default function AdminLoginPage() {
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const displayError = error || searchParams.get("error") || "";
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,9 +63,9 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md">
         {/* Login Form */}
         <div className="bg-slate-800 rounded-lg p-8 border border-slate-700">
-          {error && (
+          {displayError && (
             <div className="bg-red-500/10 border border-red-500 text-red-400 px-4 py-2 rounded-lg text-sm mb-4">
-              {error}
+              {displayError}
             </div>
           )}
 
