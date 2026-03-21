@@ -180,6 +180,7 @@ export function PortfolioPage({
         roleTitle={livePortfolio.roleTitle}
         specialty={livePortfolio.specialty}
         heroStats={livePortfolio.heroStats}
+        heroContacts={livePortfolio.heroContacts}
         contactMethods={livePortfolio.contactMethods}
         onNavigate={scrollToSection}
       />

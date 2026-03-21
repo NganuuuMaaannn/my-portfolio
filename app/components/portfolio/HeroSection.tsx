@@ -13,7 +13,7 @@ import { motion } from "framer-motion";
 
 import { findPrimaryEmail } from "./data";
 import { revealEase, TileReveal } from "./PortfolioMotion";
-import type { ContactIconName, ContactMethod, HeroStat } from "./types";
+import type { ContactIconName, ContactMethod, HeroContact, HeroStat } from "./types";
 
 type HeroSectionProps = {
   ownerName: string;
@@ -22,16 +22,10 @@ type HeroSectionProps = {
   roleTitle: string;
   specialty: string;
   heroStats: HeroStat[];
+  heroContacts: HeroContact[];
   contactMethods: ContactMethod[];
   onNavigate: (sectionId: string) => void;
 };
-
-const heroContactOrder: ContactIconName[] = [
-  "github",
-  "email",
-  "linkedin",
-  "website",
-];
 
 const heroIconMap: Record<ContactIconName, ComponentType<{ className?: string }>> = {
   email: FaEnvelope,
@@ -48,6 +42,7 @@ export function HeroSection({
   ownerName,
   roleTitle,
   specialty,
+  heroContacts,
   contactMethods,
   onNavigate,
 }: HeroSectionProps) {
@@ -62,36 +57,11 @@ export function HeroSection({
     contactMethods.find((item) => item.icon === "linkedin") ??
     contactMethods.find((item) => item.icon === "github");
 
-  const heroContacts = heroContactOrder
-    .map((icon) => contactMethods.find((item) => item.icon === icon))
-    .filter(
-      (item): item is ContactMethod => Boolean(item && item.href && item.href !== "#"),
-    );
-
   const heroSubheading =
     specialty && specialty.length <= 40 ? `${roleTitle} | ${specialty}` : roleTitle;
 
   return (
     <div className="relative min-h-screen overflow-x-hidden text-slate-100">
-      {/* <motion.div
-        className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(circle_at_top_left,rgba(236,72,153,0.22),transparent_22%),radial-gradient(circle_at_bottom_right,rgba(16,185,129,0.16),transparent_24%),linear-gradient(180deg,#050816_0%,#081120_42%,#0d1a2b_100%)]"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1.1, ease: revealEase }}
-      />
-      <motion.div
-        className="pointer-events-none absolute inset-0 -z-10 opacity-30 bg-[linear-gradient(rgba(148,163,184,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.1)_1px,transparent_1px)] bg-size-[88px_88px]"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.3 }}
-        transition={{ duration: 1.2, delay: 0.15, ease: revealEase }}
-      />
-      <motion.div
-        className="pointer-events-none absolute left-1/2 top-28 -z-10 h-96 w-96 -translate-x-1/2 rounded-full bg-teal-400/10 blur-3xl"
-        initial={{ opacity: 0, scale: 0.85 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.1, delay: 0.2, ease: revealEase }}
-      /> */}
-
       <section
         id="home"
         className="flex min-h-svh items-center overflow-hidden px-6 py-6 lg:px-8"

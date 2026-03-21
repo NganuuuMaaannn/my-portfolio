@@ -9,6 +9,14 @@ export const contactIconNames = [
 
 export type ContactIconName = (typeof contactIconNames)[number];
 
+export const projectLinkTypes = [
+  "live",
+  "repository",
+  "private",
+] as const;
+
+export type ProjectLinkType = (typeof projectLinkTypes)[number];
+
 export type NavItem = {
   label: string;
   id: string;
@@ -31,6 +39,7 @@ export type Project = {
   summary: string;
   stack: string[];
   href: string;
+  linkType: ProjectLinkType;
   accent: string;
   image: string;
 };
@@ -46,6 +55,12 @@ export type Certificate = {
 export type ContactMethod = {
   label: string;
   value: string;
+  href: string;
+  icon: ContactIconName;
+};
+
+export type HeroContact = {
+  label: string;
   href: string;
   icon: ContactIconName;
 };
@@ -66,6 +81,7 @@ export type PortfolioContent = {
   capabilities: Capability[];
   projects: Project[];
   certificates: Certificate[];
+  heroContacts: HeroContact[];
   contactMethods: ContactMethod[];
 };
 
@@ -86,6 +102,7 @@ export type PortfolioRow = {
   capabilities: unknown;
   projects: unknown;
   certificates: unknown;
+  hero_contacts: unknown;
   contact_methods: unknown;
   created_at: string;
   updated_at: string;
@@ -107,5 +124,6 @@ export type PortfolioUpsertPayload = {
   capabilities: Capability[];
   projects: Project[];
   certificates: Certificate[];
+  hero_contacts: HeroContact[];
   contact_methods: ContactMethod[];
 };

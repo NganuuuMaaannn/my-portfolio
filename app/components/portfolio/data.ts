@@ -3,13 +3,16 @@ import type {
   Certificate,
   ContactIconName,
   ContactMethod,
+  HeroContact,
   HeroStat,
   NavItem,
   PortfolioContent,
   PortfolioRow,
   PortfolioUpsertPayload,
   Project,
+  ProjectLinkType,
 } from "./types";
+import { projectLinkTypes } from "./types";
 
 const projectAccents = [
   "from-[#0f766e] via-[#14b8a6] to-[#99f6e4]",
@@ -22,6 +25,7 @@ const projectAccents = [
 
 const defaultAboutImage = "/profile-portrait.svg";
 const defaultProjectImage = "/project-cover-placeholder.svg";
+const repositoryHosts = ["github.com", "gitlab.com", "bitbucket.org"];
 
 export const navItems: NavItem[] = [
   { label: "About", id: "about" },
@@ -79,6 +83,7 @@ const defaultProjects: Project[] = [
       "A sales intelligence dashboard for a growing retail team, built to monitor revenue, orders, and campaign performance in one place.",
     stack: ["Next.js", "TypeScript", "Tailwind", "Chart UI"],
     href: "https://example.com/projects/northstar-commerce-dashboard",
+    linkType: "live",
     accent: projectAccents[0],
     image: defaultProjectImage,
   },
@@ -90,6 +95,7 @@ const defaultProjects: Project[] = [
       "A habit-driven fitness app concept with onboarding, personalized routines, and friendly progress feedback for daily motivation.",
     stack: ["React Native", "Figma", "Health Data", "Notifications"],
     href: "https://example.com/projects/pulsefit-mobile-coach",
+    linkType: "live",
     accent: projectAccents[1],
     image: defaultProjectImage,
   },
@@ -101,6 +107,7 @@ const defaultProjects: Project[] = [
       "A portal for students and teachers to manage assignments, attendance, and announcements with a calm and approachable interface.",
     stack: ["Next.js", "Supabase", "Role Access", "Messaging"],
     href: "https://example.com/projects/classroom-connect-portal",
+    linkType: "live",
     accent: projectAccents[2],
     image: defaultProjectImage,
   },
@@ -112,6 +119,7 @@ const defaultProjects: Project[] = [
       "A lightweight inventory tracker for a distribution team with stock alerts, warehouse summaries, and delivery preparation tools.",
     stack: ["Dashboard", "Inventory", "Analytics", "Reports"],
     href: "https://example.com/projects/harvest-supply-tracker",
+    linkType: "live",
     accent: projectAccents[3],
     image: defaultProjectImage,
   },
@@ -123,6 +131,7 @@ const defaultProjects: Project[] = [
       "A drag-and-drop concept for freelancers who want to assemble case studies, testimonials, and contact pages without code.",
     stack: ["CMS", "Blocks", "Branding", "Animations"],
     href: "https://example.com/projects/nomad-studio-portfolio-builder",
+    linkType: "live",
     accent: projectAccents[4],
     image: defaultProjectImage,
   },
@@ -134,6 +143,7 @@ const defaultProjects: Project[] = [
       "A support workspace that combines ticket triage, knowledge base content, and SLA tracking for fast internal collaboration.",
     stack: ["Knowledge Base", "Support Ops", "Search", "Workflows"],
     href: "https://example.com/projects/beacon-support-hub",
+    linkType: "live",
     accent: projectAccents[5],
     image: defaultProjectImage,
   },
@@ -275,12 +285,35 @@ function cloneContactMethods(contactMethods: ContactMethod[]) {
   return contactMethods.map((item) => ({ ...item }));
 }
 
+function cloneHeroContacts(heroContacts: HeroContact[]) {
+  return heroContacts.map((item) => ({ ...item }));
+}
+
+const heroContactOrder: ContactIconName[] = [
+  "github",
+  "email",
+  "linkedin",
+  "website",
+];
+
+function buildHeroContactsFromContactMethods(contactMethods: ContactMethod[]): HeroContact[] {
+  return heroContactOrder
+    .map((icon) => contactMethods.find((item) => item.icon === icon))
+    .filter((item): item is ContactMethod => Boolean(item && item.href && item.href !== "#"))
+    .map((item) => ({
+      label: item.label,
+      href: item.href,
+      icon: item.icon,
+    }));
+}
+
 export function buildDefaultPortfolioContent(seed: PortfolioSeed = {}): PortfolioContent {
   const ownerName = seed.ownerName?.trim() || "Student Name";
   const usernameSeed = seed.username?.trim() || ownerName;
   const baseSlug = sanitizePortfolioSlug(usernameSeed) || "student";
   const portfolioSlug =
     sanitizePortfolioSlug(`${baseSlug}-portfolio`) || "student-portfolio";
+  const defaultContactMethods = createDefaultContactMethods(ownerName, seed.email || undefined);
 
   return {
     portfolioSlug,
@@ -300,9 +333,10 @@ export function buildDefaultPortfolioContent(seed: PortfolioSeed = {}): Portfoli
     capabilities: cloneCapabilities(defaultCapabilities),
     projects: cloneProjects(defaultProjects),
     certificates: cloneCertificates(defaultCertificates),
-    contactMethods: cloneContactMethods(
-      createDefaultContactMethods(ownerName, seed.email || undefined),
+    heroContacts: cloneHeroContacts(
+      buildHeroContactsFromContactMethods(defaultContactMethods),
     ),
+    contactMethods: cloneContactMethods(defaultContactMethods),
   };
 }
 
@@ -317,6 +351,81 @@ function normalizeString(value: unknown, fallback: string) {
 
   const trimmed = value.trim();
   return trimmed || fallback;
+}
+
+function isProjectLinkType(value: unknown): value is ProjectLinkType {
+  return typeof value === "string" && projectLinkTypes.includes(value as ProjectLinkType);
+}
+
+export function inferProjectLinkTypeFromHref(href: string): ProjectLinkType {
+  const trimmedHref = href.trim();
+  if (!trimmedHref || trimmedHref === "#") {
+    return "private";
+  }
+
+  try {
+    const parsedHref = new URL(
+      trimmedHref.startsWith("http://") || trimmedHref.startsWith("https://")
+        ? trimmedHref
+        : `https://${trimmedHref}`,
+    );
+    const normalizedHost = parsedHref.hostname.toLowerCase();
+
+    if (
+      repositoryHosts.some(
+        (host) => normalizedHost === host || normalizedHost.endsWith(`.${host}`),
+      )
+    ) {
+      return "repository";
+    }
+  } catch {
+    const loweredHref = trimmedHref.toLowerCase();
+    if (repositoryHosts.some((host) => loweredHref.includes(host))) {
+      return "repository";
+    }
+  }
+
+  return "live";
+}
+
+export function resolveProjectLinkType(
+  value: unknown,
+  href: string,
+): ProjectLinkType {
+  if (!href.trim() || href.trim() === "#") {
+    return "private";
+  }
+
+  return isProjectLinkType(value) ? value : inferProjectLinkTypeFromHref(href);
+}
+
+export function getProjectLinkPresentation(
+  project: Pick<Project, "href" | "linkType">,
+) {
+  const normalizedHref = project.href.trim();
+  const linkType = resolveProjectLinkType(project.linkType, normalizedHref);
+
+  if (linkType === "private") {
+    return {
+      kind: "private" as const,
+      href: null,
+      label: "Private Repository",
+    };
+  }
+
+  if (linkType === "repository") {
+    return {
+      kind: "repository" as const,
+      href: normalizedHref,
+      label: "Open Repository",
+    };
+  }
+
+  return {
+    kind: "live" as const,
+    href: normalizedHref,
+    label: "Open Live Preview",
+  };
 }
 
 function normalizeHeroStats(value: unknown, fallback: HeroStat[]) {
@@ -373,6 +482,7 @@ function normalizeProjects(value: unknown, fallback: Project[]) {
         summary: normalizeString(item.summary, ""),
         stack: stack.length > 0 ? stack : ["Next.js", "TypeScript"],
         href: normalizeString(item.href, "#"),
+        linkType: resolveProjectLinkType(item.linkType, normalizeString(item.href, "#")),
         accent: normalizeString(
           item.accent,
           projectAccents[index % projectAccents.length],
@@ -443,12 +553,37 @@ function normalizeContactMethods(value: unknown, fallback: ContactMethod[]) {
   return normalized.length > 0 ? normalized : cloneContactMethods(fallback);
 }
 
+function normalizeHeroContacts(value: unknown, fallback: HeroContact[]) {
+  if (!Array.isArray(value)) {
+    return cloneHeroContacts(fallback);
+  }
+
+  const normalized = value
+    .filter(isRecord)
+    .map((item, index) => ({
+      label: normalizeString(item.label, fallback[index]?.label || ""),
+      href: normalizeString(item.href, fallback[index]?.href || "#"),
+      icon: normalizeContactIcon(item.icon, fallback[index]?.icon || "website"),
+    }))
+    .filter((item) => item.label && item.href && item.href !== "#");
+
+  return normalized;
+}
+
 export function normalizePortfolioContent(
   row: Partial<PortfolioRow> | null | undefined,
   seed: PortfolioSeed = {},
 ): PortfolioContent {
   const fallback = buildDefaultPortfolioContent(seed);
   const normalizedSlug = sanitizePortfolioSlug(row?.portfolio_slug || fallback.portfolioSlug);
+  const normalizedContactMethods = normalizeContactMethods(
+    row?.contact_methods,
+    fallback.contactMethods,
+  );
+  const fallbackHeroContacts =
+    row?.hero_contacts === undefined || row?.hero_contacts === null
+      ? buildHeroContactsFromContactMethods(normalizedContactMethods)
+      : fallback.heroContacts;
 
   return {
     portfolioSlug: normalizedSlug || fallback.portfolioSlug,
@@ -467,7 +602,8 @@ export function normalizePortfolioContent(
     capabilities: normalizeCapabilities(row?.capabilities, fallback.capabilities),
     projects: normalizeProjects(row?.projects, fallback.projects),
     certificates: normalizeCertificates(row?.certificates, fallback.certificates),
-    contactMethods: normalizeContactMethods(row?.contact_methods, fallback.contactMethods),
+    heroContacts: normalizeHeroContacts(row?.hero_contacts, fallbackHeroContacts),
+    contactMethods: normalizedContactMethods,
   };
 }
 
@@ -491,6 +627,7 @@ export function createPortfolioUpsertPayload(
       capabilities: portfolio.capabilities,
       projects: portfolio.projects,
       certificates: portfolio.certificates,
+      hero_contacts: portfolio.heroContacts,
       contact_methods: portfolio.contactMethods,
     },
     { ownerName: portfolio.ownerName },
@@ -512,6 +649,7 @@ export function createPortfolioUpsertPayload(
     capabilities: normalized.capabilities,
     projects: normalized.projects,
     certificates: normalized.certificates,
+    hero_contacts: normalized.heroContacts,
     contact_methods: normalized.contactMethods,
   };
 }

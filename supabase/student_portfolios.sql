@@ -27,6 +27,7 @@ create table if not exists public.student_portfolios (
   capabilities jsonb not null default '[]'::jsonb,
   projects jsonb not null default '[]'::jsonb,
   certificates jsonb not null default '[]'::jsonb,
+  hero_contacts jsonb not null default '[]'::jsonb,
   contact_methods jsonb not null default '[]'::jsonb,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now()),
@@ -38,6 +39,9 @@ create table if not exists public.student_portfolios (
 
 alter table public.student_portfolios
   add column if not exists about_image text not null default '/Sample.png';
+
+alter table public.student_portfolios
+  add column if not exists hero_contacts jsonb not null default '[]'::jsonb;
 
 create index if not exists student_portfolios_owner_id_idx
   on public.student_portfolios (owner_id);
@@ -107,3 +111,48 @@ on public.student_portfolios
 for delete
 to authenticated
 using (auth.uid() = owner_id);
+
+insert into storage.buckets (id, name, public)
+values ('portfolio-images', 'portfolio-images', true)
+on conflict (id) do update
+set public = excluded.public;
+
+drop policy if exists "Portfolio images are publicly readable" on storage.objects;
+create policy "Portfolio images are publicly readable"
+on storage.objects
+for select
+using (bucket_id = 'portfolio-images');
+
+drop policy if exists "Users can upload their own portfolio images" on storage.objects;
+create policy "Users can upload their own portfolio images"
+on storage.objects
+for insert
+to authenticated
+with check (
+  bucket_id = 'portfolio-images'
+  and (storage.foldername(name))[1] = auth.uid()::text
+);
+
+drop policy if exists "Users can update their own portfolio images" on storage.objects;
+create policy "Users can update their own portfolio images"
+on storage.objects
+for update
+to authenticated
+using (
+  bucket_id = 'portfolio-images'
+  and (storage.foldername(name))[1] = auth.uid()::text
+)
+with check (
+  bucket_id = 'portfolio-images'
+  and (storage.foldername(name))[1] = auth.uid()::text
+);
+
+drop policy if exists "Users can delete their own portfolio images" on storage.objects;
+create policy "Users can delete their own portfolio images"
+on storage.objects
+for delete
+to authenticated
+using (
+  bucket_id = 'portfolio-images'
+  and (storage.foldername(name))[1] = auth.uid()::text
+);
