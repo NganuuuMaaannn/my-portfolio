@@ -9,6 +9,13 @@ export const contactIconNames = [
 
 export type ContactIconName = (typeof contactIconNames)[number];
 
+export const contactMethodKinds = [
+  "contact",
+  "resume",
+] as const;
+
+export type ContactMethodKind = (typeof contactMethodKinds)[number];
+
 export const projectLinkTypes = [
   "live",
   "repository",
@@ -57,6 +64,7 @@ export type ContactMethod = {
   value: string;
   href: string;
   icon: ContactIconName;
+  kind: ContactMethodKind;
 };
 
 export type HeroContact = {

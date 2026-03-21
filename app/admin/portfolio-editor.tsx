@@ -9,6 +9,7 @@ import {
   createPortfolioUpsertPayload,
   getProjectLinkPresentation,
   getPortfolioPath,
+  isResumeContactMethod,
   normalizePortfolioContent,
   sanitizePortfolioSlug,
   validatePortfolioSlug,
@@ -222,10 +223,12 @@ const defaultAboutImage = "/profile-portrait.svg";
 const defaultProjectImage = "/project-cover-placeholder.svg";
 const defaultCertificateImage = "/certificate-ux-strategy.svg";
 const defaultProjectAccent = "from-[#0f766e] via-[#14b8a6] to-[#99f6e4]";
-const portfolioImageBucket = "portfolio-images";
+const portfolioAssetBucket = "portfolio-images";
 const maxImageSizeInBytes = 5 * 1024 * 1024;
+const maxPdfSizeInBytes = 10 * 1024 * 1024;
 const supportedImageAccept =
   "image/png,image/jpeg,image/webp,image/avif,image/gif";
+const supportedPdfAccept = "application/pdf,.pdf";
 const supportedImageMimeTypes = new Set([
   "image/png",
   "image/jpeg",
@@ -233,6 +236,7 @@ const supportedImageMimeTypes = new Set([
   "image/avif",
   "image/gif",
 ]);
+const supportedPdfMimeTypes = new Set(["application/pdf"]);
 const supportedImageExtensions = new Set(["png", "jpg", "jpeg", "webp", "avif", "gif"]);
 const projectLinkTypeLabelByValue: Record<ProjectLinkType, string> = {
   live: "Open Live Preview",
@@ -571,6 +575,20 @@ export function PortfolioEditor({
     [portfolio.portfolioSlug],
   );
   const previewPath = getPortfolioPath(portfolio.portfolioSlug || "your-portfolio");
+  const resumeContactIndex = useMemo(
+    () =>
+      portfolio.contactMethods.findIndex((item) => isResumeContactMethod(item)),
+    [portfolio.contactMethods],
+  );
+  const resumeContact =
+    resumeContactIndex >= 0 ? portfolio.contactMethods[resumeContactIndex] : null;
+  const visibleContactMethods = useMemo(
+    () =>
+      portfolio.contactMethods
+        .map((item, index) => ({ item, index }))
+        .filter(({ item }) => !isResumeContactMethod(item)),
+    [portfolio.contactMethods],
+  );
 
   useEffect(() => {
     if (!toastNotification) {
@@ -636,8 +654,50 @@ export function PortfolioEditor({
     }));
   };
 
+  const upsertResumeContact = (updates: Partial<ContactMethod>) => {
+    setPortfolio((current) => {
+      const currentIndex = current.contactMethods.findIndex((item) =>
+        isResumeContactMethod(item),
+      );
+      const existingContact =
+        currentIndex >= 0 ? current.contactMethods[currentIndex] : null;
+      const nextResumeContact: ContactMethod = {
+        label: "View CV",
+        value: existingContact?.value || "CV PDF",
+        href: existingContact?.href || "#",
+        ...existingContact,
+        ...updates,
+        icon: "website",
+        kind: "resume",
+      };
+
+      if (currentIndex === -1) {
+        return {
+          ...current,
+          contactMethods: [...current.contactMethods, nextResumeContact],
+        };
+      }
+
+      return {
+        ...current,
+        contactMethods: current.contactMethods.map((item, itemIndex) =>
+          itemIndex === currentIndex ? nextResumeContact : item,
+        ),
+      };
+    });
+  };
+
+  const removeResumeContact = () => {
+    updatePortfolioField(
+      "contactMethods",
+      portfolio.contactMethods.filter((item) => !isResumeContactMethod(item)),
+    );
+    clearScopedUploadState("resume");
+    showSuccessToast("CV removed from your draft.");
+  };
+
   const getFieldUploadStatus = (key: string) =>
-    uploadStatus?.key === key && uploadStatus.kind === "error"
+    uploadStatus?.key === key
       ? {
         kind: uploadStatus.kind,
         message: uploadStatus.message,
@@ -716,7 +776,7 @@ export function PortfolioEditor({
     try {
       const supabase = createClient();
       const { error } = await supabase.storage
-        .from(portfolioImageBucket)
+        .from(portfolioAssetBucket)
         .upload(uniquePath, file, {
           cacheControl: "31536000",
           upsert: false,
@@ -728,7 +788,7 @@ export function PortfolioEditor({
       }
 
       const { data } = supabase.storage
-        .from(portfolioImageBucket)
+        .from(portfolioAssetBucket)
         .getPublicUrl(uniquePath);
 
       options.onUploaded(data.publicUrl);
@@ -747,6 +807,86 @@ export function PortfolioEditor({
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Image upload failed.";
+
+      setUploadStatus({
+        key: options.key,
+        kind: "error",
+        message: `${errorMessage} Run the updated SQL setup if the storage bucket is missing.`,
+      });
+    } finally {
+      setUploadingKey(null);
+    }
+  };
+
+  const handlePdfUpload = async (
+    event: ChangeEvent<HTMLInputElement>,
+    options: {
+      key: string;
+      onUploaded: (publicUrl: string, fileName: string) => void;
+    },
+  ) => {
+    const file = event.currentTarget.files?.[0];
+    event.currentTarget.value = "";
+
+    if (!file) {
+      return;
+    }
+
+    const extension = file.name.split(".").pop()?.toLowerCase() || "";
+    const hasSupportedMimeType = supportedPdfMimeTypes.has(file.type);
+
+    if (!hasSupportedMimeType && extension !== "pdf") {
+      setUploadStatus({
+        key: options.key,
+        kind: "error",
+        message: "Use PDF files only for the View CV button.",
+      });
+      return;
+    }
+
+    if (file.size > maxPdfSizeInBytes) {
+      setUploadStatus({
+        key: options.key,
+        kind: "error",
+        message: "PDF is too large. Keep uploads under 10 MB.",
+      });
+      return;
+    }
+
+    const safeFileName = sanitizePortfolioSlug(file.name.replace(/\.[^.]+$/, "")) || "cv";
+    const uniquePath = `${userId}/resume/${Date.now()}-${crypto.randomUUID()}-${safeFileName}.pdf`;
+
+    setUploadingKey(options.key);
+    setUploadStatus(null);
+
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.storage
+        .from(portfolioAssetBucket)
+        .upload(uniquePath, file, {
+          cacheControl: "31536000",
+          upsert: false,
+          contentType: "application/pdf",
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      const { data } = supabase.storage
+        .from(portfolioAssetBucket)
+        .getPublicUrl(uniquePath);
+
+      options.onUploaded(data.publicUrl, file.name);
+      setUploadStatus({
+        key: options.key,
+        kind: "success",
+        message: "PDF uploaded. Save Portfolio to keep this View CV file attached.",
+      });
+      showSuccessToast("CV PDF uploaded successfully.");
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "PDF upload failed.";
 
       setUploadStatus({
         key: options.key,
@@ -995,6 +1135,7 @@ export function PortfolioEditor({
         value: "",
         href: "",
         icon: "website",
+        kind: "contact",
       },
     ]);
     showSuccessToast("Contact method added to your draft.");
@@ -1240,7 +1381,7 @@ export function PortfolioEditor({
 
       <SectionCard
         title="Hero Copy"
-        description="This content appears at the top of the public portfolio page."
+        description="This content appears at the top of the public portfolio page, including the View CV button."
       >
         <div className="grid gap-5">
           <Field label="Student Name">
@@ -1262,6 +1403,88 @@ export function PortfolioEditor({
               className={inputClassName}
               placeholder="Your role title here... (example: Full-Stack Developer | UX Designer)"
             />
+          </Field>
+
+          <Field label="View CV PDF">
+            <div className="space-y-3 rounded-2xl border border-slate-700 bg-slate-900/60 p-4">
+              <input
+                type="file"
+                accept={supportedPdfAccept}
+                onChange={(event) =>
+                  void handlePdfUpload(event, {
+                    key: "resume",
+                    onUploaded: (publicUrl, fileName) =>
+                      upsertResumeContact({
+                        href: publicUrl,
+                        value: fileName,
+                        label: "View CV",
+                      }),
+                  })
+                }
+                disabled={uploadingKey === "resume"}
+                className={fileInputClassName}
+              />
+
+              <p className="text-xs leading-6 text-slate-400">
+                Upload a PDF up to 10 MB, or paste a direct PDF URL below. This file powers the
+                View CV button in the hero section.
+              </p>
+
+              <input
+                value={
+                  resumeContact && resumeContact.href !== "#"
+                    ? resumeContact.href
+                    : ""
+                }
+                onChange={(event) =>
+                  upsertResumeContact({
+                    href: event.target.value,
+                    value: resumeContact?.value || "CV PDF",
+                    label: "View CV",
+                  })
+                }
+                className={inputClassName}
+                placeholder="https://your-storage-link.example.com/your-cv.pdf"
+              />
+
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                {resumeContact && resumeContact.href.trim() && resumeContact.href !== "#" ? (
+                  <a
+                    href={resumeContact.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-sm font-semibold text-teal-300 transition hover:text-teal-200"
+                  >
+                    Open current CV
+                  </a>
+                ) : (
+                  <p className="text-sm text-slate-500">
+                    No CV file connected yet.
+                  </p>
+                )}
+
+                {resumeContact ? (
+                  <button
+                    type="button"
+                    onClick={removeResumeContact}
+                    className={destructiveButtonClassName}
+                  >
+                    Remove CV
+                  </button>
+                ) : null}
+              </div>
+
+              {getFieldUploadStatus("resume") ? (
+                <p
+                  className={`text-xs leading-6 ${getFieldUploadStatus("resume")?.kind === "success"
+                    ? "text-teal-300"
+                    : "text-red-300"
+                    }`}
+                >
+                  {getFieldUploadStatus("resume")?.message}
+                </p>
+              ) : null}
+            </div>
           </Field>
 
         </div>
@@ -1464,10 +1687,10 @@ export function PortfolioEditor({
 
       <SectionCard
         title="Contact Methods"
-        description="The first email entry is used as the main call-to-action link."
+        description="These links appear in the contact section. The View CV file is managed above in Hero Copy."
       >
         <div className="space-y-5">
-          {portfolio.contactMethods.map((item, index) => (
+          {visibleContactMethods.map(({ item, index }) => (
             <div key={`contact-method-${index}`} className="space-y-4 rounded-xl border border-slate-700 p-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <Field label="Label">

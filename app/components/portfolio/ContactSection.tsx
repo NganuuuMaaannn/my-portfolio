@@ -9,7 +9,7 @@ import {
   FaPhoneAlt,
 } from "react-icons/fa";
 
-import { findPrimaryEmail } from "./data";
+import { findPrimaryEmail, getVisibleContactMethods } from "./data";
 import { SectionReveal, TileReveal } from "./PortfolioMotion";
 import type { ContactIconName, ContactMethod } from "./types";
 
@@ -36,7 +36,8 @@ export function ContactSection({
   contactMethods,
   onNavigate,
 }: ContactSectionProps) {
-  const primaryEmail = findPrimaryEmail(contactMethods);
+  const visibleContactMethods = getVisibleContactMethods(contactMethods);
+  const primaryEmail = findPrimaryEmail(visibleContactMethods);
 
   return (
     <div className="relative min-h-screen overflow-x-hidden">
@@ -79,7 +80,7 @@ export function ContactSection({
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 auto-cols-fr">
-            {contactMethods.map((item, index) => {
+            {visibleContactMethods.map((item, index) => {
               const Icon = iconMap[item.icon];
               const external = item.href.startsWith("http");
 

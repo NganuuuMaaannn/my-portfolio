@@ -11,7 +11,7 @@ import {
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 
-import { findPrimaryEmail } from "./data";
+import { findResumeContact } from "./data";
 import { revealEase, TileReveal } from "./PortfolioMotion";
 import type { ContactIconName, ContactMethod, HeroContact, HeroStat } from "./types";
 
@@ -36,8 +36,6 @@ const heroIconMap: Record<ContactIconName, ComponentType<{ className?: string }>
   website: FaGlobe,
 };
 
-const resumePattern = /resume|cv|curriculum/i;
-
 export function HeroSection({
   ownerName,
   roleTitle,
@@ -46,16 +44,8 @@ export function HeroSection({
   contactMethods,
   onNavigate,
 }: HeroSectionProps) {
-  const primaryEmail = findPrimaryEmail(contactMethods);
-  const resumeLink =
-    contactMethods.find((item) =>
-      resumePattern.test(`${item.label} ${item.value} ${item.href}`),
-    ) ??
-    contactMethods.find(
-      (item) => item.icon === "website" && item.href.startsWith("http"),
-    ) ??
-    contactMethods.find((item) => item.icon === "linkedin") ??
-    contactMethods.find((item) => item.icon === "github");
+  const resumeLink = findResumeContact(contactMethods);
+  const hasResumeLink = Boolean(resumeLink?.href && resumeLink.href !== "#");
 
   const heroSubheading =
     specialty && specialty.length <= 40 ? `${roleTitle} | ${specialty}` : roleTitle;
@@ -96,32 +86,27 @@ export function HeroSection({
                 transition={{ duration: 0.82, delay: 0.72, ease: revealEase }}
               >
                 <a
-                  href={resumeLink?.href || "#projects"}
-                  target={resumeLink?.href?.startsWith("http") ? "_blank" : undefined}
-                  rel={resumeLink?.href?.startsWith("http") ? "noreferrer" : undefined}
+                  href={resumeLink?.href || "#"}
+                  target={hasResumeLink ? "_blank" : undefined}
+                  rel={hasResumeLink ? "noreferrer" : undefined}
                   onClick={(event) => {
-                    if (!resumeLink) {
+                    if (!hasResumeLink) {
                       event.preventDefault();
-                      onNavigate("projects");
                     }
                   }}
-                  className="inline-flex items-center gap-2 rounded-full bg-teal-400 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-teal-300"
+                  aria-disabled={!hasResumeLink}
+                  className={`inline-flex items-center gap-2 rounded-full bg-teal-400 px-10 py-3 text-sm font-semibold text-slate-950 transition hover:bg-teal-300 ${hasResumeLink ? "" : "cursor-not-allowed opacity-70"}`}
                 >
-                  View Resume
+                  View CV
                 </a>
 
-                <a
-                  href={primaryEmail?.href || "#contact"}
-                  onClick={(event) => {
-                    if (!primaryEmail) {
-                      event.preventDefault();
-                      onNavigate("contact");
-                    }
-                  }}
+                <button
+                  type="button"
+                  onClick={() => onNavigate("contact")}
                   className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/6 px-6 py-3 text-sm font-semibold text-slate-100 transition hover:border-teal-300/35 hover:bg-white/10"
                 >
                   Contact Me
-                </a>
+                </button>
               </motion.div>
 
               {heroContacts.length > 0 ? (

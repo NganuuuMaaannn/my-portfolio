@@ -2,6 +2,7 @@ import type {
   Capability,
   Certificate,
   ContactIconName,
+  ContactMethodKind,
   ContactMethod,
   HeroContact,
   HeroStat,
@@ -26,6 +27,7 @@ const projectAccents = [
 const defaultAboutImage = "/profile-portrait.svg";
 const defaultProjectImage = "/project-cover-placeholder.svg";
 const repositoryHosts = ["github.com", "gitlab.com", "bitbucket.org"];
+const resumePattern = /(?:^|\b)(resume|cv|curriculum vitae)(?:\b|$)|\.pdf(?:$|[?#])/i;
 
 export const navItems: NavItem[] = [
   { label: "About", id: "about" },
@@ -189,36 +191,42 @@ const createDefaultContactMethods = (ownerName: string, email?: string): Contact
       value: email || `hello@${normalizedName}.dev`,
       href: `mailto:${email || `hello@${normalizedName}.dev`}`,
       icon: "email",
+      kind: "contact",
     },
     {
       label: "Phone",
       value: "+63 912 345 6789",
       href: "tel:+639123456789",
       icon: "phone",
+      kind: "contact",
     },
     {
       label: "Location",
       value: "Quezon City, Philippines",
       href: "https://maps.google.com/?q=Quezon+City+Philippines",
       icon: "location",
+      kind: "contact",
     },
     {
       label: "LinkedIn",
       value: `linkedin.com/in/${normalizedName}`,
       href: `https://linkedin.com/in/${normalizedName}`,
       icon: "linkedin",
+      kind: "contact",
     },
     {
       label: "GitHub",
       value: `github.com/${normalizedName}`,
       href: `https://github.com/${normalizedName}`,
       icon: "github",
+      kind: "contact",
     },
     {
       label: "Website",
       value: `${normalizedName}.allenahub.app`,
       href: `/${normalizedName}-portfolio`,
       icon: "website",
+      kind: "contact",
     },
   ];
 };
@@ -296,9 +304,27 @@ const heroContactOrder: ContactIconName[] = [
   "website",
 ];
 
+export function isResumeContactMethod(
+  item: Pick<ContactMethod, "kind" | "label" | "value" | "href">,
+) {
+  if (item.kind === "resume") {
+    return true;
+  }
+
+  return resumePattern.test(`${item.label} ${item.value} ${item.href}`);
+}
+
+export function getVisibleContactMethods(contactMethods: ContactMethod[]) {
+  return contactMethods.filter((item) => !isResumeContactMethod(item));
+}
+
 function buildHeroContactsFromContactMethods(contactMethods: ContactMethod[]): HeroContact[] {
   return heroContactOrder
-    .map((icon) => contactMethods.find((item) => item.icon === icon))
+    .map((icon) =>
+      contactMethods.find(
+        (item) => item.icon === icon && !isResumeContactMethod(item),
+      ),
+    )
     .filter((item): item is ContactMethod => Boolean(item && item.href && item.href !== "#"))
     .map((item) => ({
       label: item.label,
@@ -535,6 +561,10 @@ function normalizeContactIcon(value: unknown, fallback: ContactIconName): Contac
   }
 }
 
+function normalizeContactMethodKind(value: unknown): ContactMethodKind {
+  return value === "resume" ? "resume" : "contact";
+}
+
 function normalizeContactMethods(value: unknown, fallback: ContactMethod[]) {
   if (!Array.isArray(value)) {
     return cloneContactMethods(fallback);
@@ -547,6 +577,7 @@ function normalizeContactMethods(value: unknown, fallback: ContactMethod[]) {
       value: normalizeString(item.value, ""),
       href: normalizeString(item.href, "#"),
       icon: normalizeContactIcon(item.icon, fallback[index]?.icon || "website"),
+      kind: normalizeContactMethodKind(item.kind),
     }))
     .filter((item) => item.label && item.value);
 
@@ -655,5 +686,13 @@ export function createPortfolioUpsertPayload(
 }
 
 export function findPrimaryEmail(contactMethods: ContactMethod[]) {
-  return contactMethods.find((item) => item.icon === "email");
+  return contactMethods.find(
+    (item) => item.icon === "email" && !isResumeContactMethod(item),
+  );
+}
+
+export function findResumeContact(contactMethods: ContactMethod[]) {
+  return contactMethods.find(
+    (item) => isResumeContactMethod(item) && item.href.trim() && item.href.trim() !== "#",
+  );
 }
