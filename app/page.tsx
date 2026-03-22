@@ -78,12 +78,12 @@ const developers = [
       {
         label: "GitHub",
         icon: FaGithub,
-        href: "https://github.com/NganuuuMaaannn",
+        href: "https://github.com/Pelyn9",
       },
       {
         label: "Facebook",
         icon: FaFacebookF,
-        href: "https://www.facebook.com/seanthesheepzx",
+        href: "https://www.facebook.com/peejaymarco.apale",
       },
     ],
   },
