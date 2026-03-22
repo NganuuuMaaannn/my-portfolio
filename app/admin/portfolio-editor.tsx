@@ -283,6 +283,7 @@ type ProjectModalState =
     mode: "add" | "edit";
     index: number | null;
     draft: Project;
+    stackInput: string;
   }
   | null;
 
@@ -338,6 +339,17 @@ function cloneProject(project: Project): Project {
     ...project,
     stack: [...project.stack],
   };
+}
+
+function parseTechStackInput(value: string): string[] {
+  return value
+    .split(",")
+    .map((stackItem) => stackItem.trim())
+    .filter(Boolean);
+}
+
+function stringifyTechStack(stack: string[]): string {
+  return stack.join(", ");
 }
 
 function cloneCertificate(certificate: Certificate): Certificate {
@@ -900,10 +912,13 @@ export function PortfolioEditor({
 
   const openAddProjectModal = () => {
     clearScopedUploadState("project-modal");
+    const draft = createEmptyProject();
+
     setProjectModal({
       mode: "add",
       index: null,
-      draft: createEmptyProject(),
+      draft,
+      stackInput: stringifyTechStack(draft.stack),
     });
   };
 
@@ -914,10 +929,13 @@ export function PortfolioEditor({
     }
 
     clearScopedUploadState("project-modal");
+    const draft = cloneProject(project);
+
     setProjectModal({
       mode: "edit",
       index,
-      draft: cloneProject(project),
+      draft,
+      stackInput: stringifyTechStack(draft.stack),
     });
   };
 
@@ -931,9 +949,27 @@ export function PortfolioEditor({
       current
         ? {
           ...current,
+          ...(field === "stack"
+            ? { stackInput: stringifyTechStack(value as string[]) }
+            : {}),
           draft: {
             ...current.draft,
             [field]: value,
+          },
+        }
+        : current,
+    );
+  };
+
+  const updateProjectStackInput = (value: string) => {
+    setProjectModal((current) =>
+      current
+        ? {
+          ...current,
+          stackInput: value,
+          draft: {
+            ...current.draft,
+            stack: parseTechStackInput(value),
           },
         }
         : current,
@@ -1870,16 +1906,8 @@ export function PortfolioEditor({
 
             <Field label="Tech Stack">
               <input
-                value={projectModal.draft.stack.join(", ")}
-                onChange={(event) =>
-                  updateProjectDraft(
-                    "stack",
-                    event.target.value
-                      .split(",")
-                      .map((stackItem) => stackItem.trim())
-                      .filter(Boolean),
-                  )
-                }
+                value={projectModal.stackInput}
+                onChange={(event) => updateProjectStackInput(event.target.value)}
                 className={inputClassName}
                 placeholder="Next.js, TypeScript, Tailwind"
               />

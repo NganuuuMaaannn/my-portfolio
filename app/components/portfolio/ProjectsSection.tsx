@@ -9,6 +9,22 @@ type ProjectsSectionProps = {
   projects: Project[];
 };
 
+const projectCardGradientClasses = [
+  "from-teal-400/5 via-slate-900/10 to-cyan-400/10",
+  "from-sky-400/5 via-slate-900/10 to-indigo-400/10",
+  "from-emerald-400/5 via-slate-900/10 to-teal-300/10",
+  "from-amber-300/5 via-slate-900/10 to-orange-400/10",
+  "from-rose-300/5 via-slate-900/10 to-fuchsia-400/10",
+] as const;
+
+const projectCardGlowClasses = [
+  "from-teal-300/5 via-cyan-300/10 to-transparent",
+  "from-sky-300/5 via-indigo-300/10 to-transparent",
+  "from-emerald-300/5 via-teal-300/10 to-transparent",
+  "from-amber-200/5 via-orange-300/10 to-transparent",
+  "from-rose-200/5 via-fuchsia-300/10 to-transparent",
+] as const;
+
 export function ProjectsSection({ projects }: ProjectsSectionProps) {
   return (
     <div className="relative min-h-screen overflow-x-hidden">
@@ -28,11 +44,22 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {projects.map((project, index) => {
             const projectLink = getProjectLinkPresentation(project);
+            const cardGradientClass =
+              projectCardGradientClasses[index % projectCardGradientClasses.length];
+            const cardGlowClass =
+              projectCardGlowClasses[index % projectCardGlowClasses.length];
 
             return (
               <TileReveal key={project.title} delay={0.06 + index * 0.06} className="h-full">
-                <article className="mt-auto flex h-full flex-col rounded-4xl border border-white/10 bg-slate-900/66 p-5 shadow-[0_18px_60px_rgba(2,6,23,0.36)] backdrop-blur transition hover:-translate-y-1 hover:border-teal-300/30">
-                  <div className="group relative overflow-hidden rounded-[28px]">
+                <article
+                  className={`relative mt-auto flex h-full flex-col overflow-hidden rounded-4xl border border-white/10 bg-linear-to-br ${cardGradientClass} p-5 shadow-[0_18px_60px_rgba(2,6,23,0.36)] backdrop-blur transition hover:-translate-y-1 hover:border-teal-300/30`}
+                >
+                  <div
+                    className={`pointer-events-none absolute inset-0 bg-linear-to-br ${cardGlowClass} opacity-30`}
+                  />
+                  <div className="pointer-events-none absolute -right-16 top-0 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+
+                  <div className="group relative z-10 overflow-hidden rounded-[28px]">
                     <Image
                       src={project.image || "/project-cover-placeholder.svg"}
                       alt={`${project.title} preview`}
@@ -40,42 +67,40 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                       height={720}
                       className="aspect-4/3 w-full object-cover transition duration-700 group-hover:scale-105"
                     />
-                    <div
-                      className={`pointer-events-none absolute inset-0 bg-linear-to-br ${project.accent} opacity-45 mix-blend-screen`}
-                    />
-                    <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-slate-950 via-slate-950/35 to-slate-950/10" />
+                  </div>
 
-                    <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-                      <h3 className="mt-5 text-2xl font-semibold leading-snug">{project.title}</h3>
+                  <div className="relative z-10 mt-0 text-sm leading-7 text-slate-300">
+                    <h3 className="mt-5 text-2xl font-semibold leading-snug">{project.title}</h3>
+                  </div>
+                  <p className="relative z-10 mt-2 text-sm leading-7 text-slate-300">
+                    {project.summary}
+                  </p>
+                  <div className="relative z-10 mt-auto flex flex-col gap-2 pt-10">
+                    <div className="flex flex-wrap gap-2">
+                      {project.stack.map((item) => (
+                        <span
+                          key={item}
+                          className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-slate-300"
+                        >
+                          {item}
+                        </span>
+                      ))}
                     </div>
-                  </div>
 
-                  <p className="mt-6 text-sm leading-7 text-slate-300">{project.summary}</p>
-
-                  <div className="mb-5 mt-5 flex flex-wrap gap-2">
-                    {project.stack.map((item) => (
-                      <span
-                        key={item}
-                        className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-slate-300"
+                    {projectLink.href ? (
+                      <a
+                        href={projectLink.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 mt-2 text-sm font-semibold text-slate-100 transition hover:text-teal-300"
                       >
-                        {item}
-                      </span>
-                    ))}
+                        {projectLink.label}
+                        <FaExternalLinkAlt className="text-xs" />
+                      </a>
+                    ) : (
+                      <p className="text-sm mt-2 font-semibold text-red-300">{projectLink.label}</p>
+                    )}
                   </div>
-
-                  {projectLink.href ? (
-                    <a
-                      href={projectLink.href}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-auto inline-flex items-center gap-2 text-sm font-semibold text-slate-100 transition hover:text-teal-300"
-                    >
-                      {projectLink.label}
-                      <FaExternalLinkAlt className="text-xs" />
-                    </a>
-                  ) : (
-                    <p className="mt-auto text-sm font-semibold text-red-300">{projectLink.label}</p>
-                  )}
                 </article>
               </TileReveal>
             );

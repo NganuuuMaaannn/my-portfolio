@@ -68,25 +68,25 @@ const developers = [
       },
     ],
   },
-  // {
-  //   name: "Peejay Marco Apale",
-  //   role: "Full-Stack Developer",
-  //   summary: "In-charge of the Full-Stack development.",
-  //   accent:
-  //     "border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.08)_0%,rgba(15,23,42,0.72)_100%)]",
-  //   socials: [
-  //     {
-  //       label: "GitHub",
-  //       icon: FaGithub,
-  //       href: "https://github.com/NganuuuMaaannn",
-  //     },
-  //     {
-  //       label: "Facebook",
-  //       icon: FaFacebookF,
-  //       href: "https://www.facebook.com/seanthesheepzx",
-  //     },
-  //   ],
-  // },
+  {
+    name: "Peejay Marco Apale",
+    role: "Full-Stack Developer",
+    summary: "In-charge of the Full-Stack development.",
+    accent:
+      "border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.08)_0%,rgba(15,23,42,0.72)_100%)]",
+    socials: [
+      {
+        label: "GitHub",
+        icon: FaGithub,
+        href: "https://github.com/NganuuuMaaannn",
+      },
+      {
+        label: "Facebook",
+        icon: FaFacebookF,
+        href: "https://www.facebook.com/seanthesheepzx",
+      },
+    ],
+  },
 ] satisfies Array<{
   name: string;
   role: string;
@@ -281,7 +281,7 @@ export default function Home() {
                 Create an account, sign in to your dashboard, and build a portfolio you can publish and share on your own custom route.
                 {" "}
                 <Link
-                  href="/student-portfolio"
+                  href="/seandoinog-portfolio"
                   className="font-semibold text-teal-300 decoration-teal-300/50 underline-offset-4 transition hover:text-teal-200"
                 >
                   View sample page
